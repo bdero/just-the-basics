@@ -19,11 +19,20 @@ function update() {
     var dt = (currentTimestamp - timestamp)/FRAME_GOAL;
     timestamp = currentTimestamp;
 
-    world.x += 1;
+    stage.x = stage.stageWidth/2;
+    stage.y = stage.stageHeight/2;
+
+    // Ratio
+    stage.scaleX = stage.scaleY = stage.scaleZ = stage.scaleX + 0.002;
+    //         (Ratio here will change to ship)
+    world.x = -(stage.mouseX/stage.stageWidth)*world.width*stage.scaleX - world.width/2;
+    world.y = -(stage.mouseY/stage.stageHeight)*world.height*stage.scaleX - world.height/2;
 }
 
 function World(width, height) {
     Sprite.call(this);
+    this.width = width;
+    this.height = height;
 
     // Add background stars
     this.stars = [];
