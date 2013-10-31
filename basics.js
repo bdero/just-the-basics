@@ -70,3 +70,37 @@ function World(width, height) {
 
 World.prototype = new Sprite();
 World.prototype.BLOCK_SIZE = 16;
+
+function Player(x, y) {
+    Sprite.call(this);
+
+    this.x = x;
+    this.y = y;
+
+    // Add player graphic
+    this.shape = new Sprite();
+    this.shape.graphics.lineStyle(3, 0xffaaff, 0.90)
+    this.shape.graphics.moveTo(0, -this.SIZE);
+    this.shape.graphics.lineTo(this.SIZE, this.SIZE);
+    this.shape.graphics.lineTo(-this.SIZE, this.SIZE);
+    this.shape.graphics.lineTo(0, -this.SIZE);
+}
+
+Player.prototype = new Sprite();
+Player.prototype.SIZE = World.prototype.BLOCK_SIZE;
+
+function Controller() {
+    this.actions = {"left":false, "right":false,
+		    "up":false, "down":false,
+		    "pause":false};
+    stage.addEventListener2(KeyboardEvent.KEY_DOWN, keyDown, this);
+    stage.addEventListener2(KeyboardEvent.KEY_UP, keyUp, this);
+}
+
+Controller.prototype.keyDown = function(e) {
+    console.log(e.keyCode + " pressed");
+}
+
+Controller.prototype.keyUp = function(e) {
+
+}
