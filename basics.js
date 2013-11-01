@@ -22,11 +22,7 @@ function update() {
     stage.x = stage.stageWidth/2;
     stage.y = stage.stageHeight/2;
 
-    // Ratio
-    stage.scaleX = stage.scaleY = stage.scaleZ = stage.scaleX + 0.002;
-    //         (Ratio here will change to ship)
-    world.x = -(stage.mouseX/stage.stageWidth)*world.width*stage.scaleX - world.width/2;
-    world.y = -(stage.mouseY/stage.stageHeight)*world.height*stage.scaleX - world.height/2;
+    world.update();
 }
 
 function World(width, height) {
@@ -66,41 +62,130 @@ function World(width, height) {
     this.graphics.lineTo(width, height);
     this.graphics.lineTo(0, height);
     this.graphics.lineTo(0, 0);
+
+    this.player = new Player(width/2, height/2);
+    this.addChild(this.player);
 }
 
 World.prototype = new Sprite();
 World.prototype.BLOCK_SIZE = 16;
+
+World.prototype.update = function() {
+    this.player.update();
+
+    // World scale (camera zoom)
+    this.scaleX = this.scaleY = this.scaleZ = this.scaleX + 0.002;
+
+    // World position (camera pan)
+    this.destinationX = -(this.player.x*this.scaleX);
+    this.destinationY = -(this.player.y*this.scaleY);
+    this.x += (this.destinationX - this.x)/10;
+    this.y += (this.destinationY - this.y)/10;
+};
+
+function distance(a, b) { return Math.sqrt(a*a + b*b) }
 
 function Player(x, y) {
     Sprite.call(this);
 
     this.x = x;
     this.y = y;
+    this.xSpeed = this.ySpeed = 0;
+
+    this.controller = new Controller();
 
     // Add player graphic
     this.shape = new Sprite();
     this.shape.graphics.lineStyle(3, 0xffaaff, 0.90)
     this.shape.graphics.moveTo(0, -this.SIZE);
     this.shape.graphics.lineTo(this.SIZE, this.SIZE);
+    this.shape.graphics.lineTo(0, this.SIZE/2);
     this.shape.graphics.lineTo(-this.SIZE, this.SIZE);
     this.shape.graphics.lineTo(0, -this.SIZE);
+
+    this.addChild(this.shape);
 }
 
 Player.prototype = new Sprite();
 Player.prototype.SIZE = World.prototype.BLOCK_SIZE;
+Player.prototype.MAX_SPEED = 6;
+Player.prototype.ACCEL_SPEED = 0.5;
+Player.prototype.DECEL_SPEED = 0.4;
+Player.prototype.DIAG_COMPONENT = 1/Math.sqrt(2);
+
+Player.prototype.update = function() {
+    // Adjust speeds based on controller
+    var xMult = 0;
+    var yMult = 0;
+    if (this.controller.actions['north']) yMult -= 1;
+    if (this.controller.actions['south']) yMult += 1;
+    if (this.controller.actions['west']) xMult -= 1;
+    if (this.controller.actions['east']) xMult += 1;
+
+    if (xMult || yMult) {
+	if (xMult && yMult) {
+	    xMult *= this.DIAG_COMPONENT;
+	    yMult *= this.DIAG_COMPONENT;
+	}
+
+	this.xSpeed += xMult*this.ACCEL_SPEED;
+	this.ySpeed += yMult*this.ACCEL_SPEED;
+
+	// Enforce speed limit
+	var newSpeed = distance(this.xSpeed, this.ySpeed);
+	if (newSpeed > this.MAX_SPEED) {
+	    var ratio = this.MAX_SPEED/newSpeed;
+	    this.xSpeed *= ratio;
+	    this.ySpeed *= ratio;
+	}
+    } else if (this.xSpeed || this.ySpeed) {
+	// Friction
+	var speed = distance(this.xSpeed, this.ySpeed);
+	var newSpeed = Math.max(0, speed - this.DECEL_SPEED);
+	var ratio = newSpeed/speed;
+	this.xSpeed *= ratio;
+	this.ySpeed *= ratio;
+    }
+
+    this.x += this.xSpeed;
+    this.y += this.ySpeed;
+};
 
 function Controller() {
-    this.actions = {"left":false, "right":false,
-		    "up":false, "down":false,
-		    "pause":false};
-    stage.addEventListener2(KeyboardEvent.KEY_DOWN, keyDown, this);
-    stage.addEventListener2(KeyboardEvent.KEY_UP, keyUp, this);
+    this.actions = {};
+    for (var key in this.ACTION_HASH)
+	if (this.ACTION_HASH.hasOwnProperty(key))
+	    this.actions[key] = false;
+
+    stage.addEventListener2(KeyboardEvent.KEY_DOWN, this.keyDown, this);
+    stage.addEventListener2(KeyboardEvent.KEY_UP, this.keyUp, this);
 }
+
+Controller.prototype.ACTION_HASH = {
+    "north": [87, 38], // W, up
+    "south": [83, 40], // S, down
+    "west": [65, 37], // A, left
+    "east": [68, 39], // D, right
+    "bomb": [17, 32], // control, space
+    "select": [13, 32] // enter, space
+};
 
 Controller.prototype.keyDown = function(e) {
-    console.log(e.keyCode + " pressed");
-}
+    //console.log(e.keyCode + " pressed");
+    this.keyboardAction(e, true);
+};
 
 Controller.prototype.keyUp = function(e) {
+    this.keyboardAction(e, false);
+};
 
-}
+Controller.prototype.keyboardAction = function(e, value) {
+    for (var key in this.ACTION_HASH)
+	if (this.ACTION_HASH.hasOwnProperty(key))
+	    for (var i in this.ACTION_HASH[key])
+		if (this.ACTION_HASH[key][i] == e.keyCode) {
+		    this.actions[key] = value;
+		    //console.log(key + " set to " + value);
+		    break;
+		}
+};
