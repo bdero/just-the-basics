@@ -91,6 +91,7 @@ function Player(x, y) {
     this.x = x;
     this.y = y;
     this.xSpeed = this.ySpeed = 0;
+    this.destinationDirection = 0;
 
     this.controller = new Controller();
 
@@ -114,7 +115,7 @@ Player.prototype.DECEL_SPEED = 0.4;
 Player.prototype.DIAG_COMPONENT = 1/Math.sqrt(2);
 
 Player.prototype.update = function() {
-    // Adjust speeds based on controller
+    // Adjust velocity based on controller
     var xMult = 0;
     var yMult = 0;
     if (this.controller.actions['north']) yMult -= 1;
@@ -149,6 +150,18 @@ Player.prototype.update = function() {
 
     this.x += this.xSpeed;
     this.y += this.ySpeed;
+
+    // Adjust direction based on controller
+    if (xMult || yMult)
+	this.destinationDirection = Math.atan2(xMult, -yMult);
+
+    var modulate = function(x) {
+	while (x > 180) x -= 360;
+	while (x <= -180) x += 360;
+	return x;
+    };
+    var deltaDestination = this.destinationDirection*180/Math.PI - this.shape.rotationZ;
+    this.shape.rotationZ += modulate(deltaDestination)/10;
 };
 
 function Controller() {
