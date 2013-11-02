@@ -26,7 +26,7 @@ function update() {
 }
 
 
-//// WORLD ////
+//// World - Manages entities/boundaries and moves/scales to simulate the camera
 
 function World(width, height) {
     Sprite.call(this);
@@ -102,8 +102,7 @@ World.prototype.update = function() {
 function distance(a, b) { return Math.sqrt(a*a + b*b) }
 
 
-//// ENTITY ////
-
+//// Entity - Anything that interacts with the world and requires movement/border enforcement
 
 function Entity(x, y, radius) {
     Sprite.call(this);
@@ -127,8 +126,7 @@ Entity.prototype.update = function() {
 }
 
 
-//// PLAYER ////
-
+//// Player - Entity that's controlled by a Controller
 
 function Player(x, y) {
     Entity.call(this, x, y, World.prototype.BLOCK_SIZE);
@@ -189,7 +187,7 @@ Player.prototype.update = function() {
 	this.ySpeed *= ratio;
     }
 
-    // Adjust direction based on controller
+    // Adjust graphic direction based on controller
     if (xMult || yMult)
 	this.destinationDirection = Math.atan2(xMult, -yMult);
 
@@ -206,8 +204,7 @@ Player.prototype.update = function() {
 };
 
 
-//// CONTROLLER ////
-
+//// Controller - Records and manages user input
 
 function Controller() {
     this.actions = {};
