@@ -25,10 +25,18 @@ function update() {
     world.update();
 }
 
+
+//// WORLD ////
+
 function World(width, height) {
     Sprite.call(this);
+
     this.width = width;
     this.height = height;
+    this.x = this.destinationX = this.worldX = -this.width/2;
+    this.y = this.destinationY = this.worldY = -this.height*2.5;
+
+    this.destinationZoom = 1;
 
     // Add background stars
     this.stars = [];
@@ -63,8 +71,11 @@ function World(width, height) {
     this.graphics.lineTo(0, height);
     this.graphics.lineTo(0, 0);
 
+    this.entities = [];
+
     this.player = new Player(width/2, height/2);
     this.addChild(this.player);
+    this.entities.push(this.player);
 }
 
 World.prototype = new Sprite();
@@ -74,23 +85,54 @@ World.prototype.update = function() {
     this.player.update();
 
     // World scale (camera zoom)
-    this.scaleX = this.scaleY = this.scaleZ = this.scaleX + 0.002;
+    this.destinationZoom = 1.5 - Math.max(
+	Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
+    )/this.player.MAX_SPEED*0.2;
+    this.scaleX = this.scaleY = this.scaleZ += (this.destinationZoom - this.scaleZ)/30;
 
     // World position (camera pan)
-    this.destinationX = -(this.player.x*this.scaleX);
-    this.destinationY = -(this.player.y*this.scaleY);
-    this.x += (this.destinationX - this.x)/10;
-    this.y += (this.destinationY - this.y)/10;
+    this.destinationX = -(this.player.x + this.player.xSpeed*25);
+    this.destinationY = -(this.player.y + this.player.ySpeed*25);
+    this.worldX += (this.destinationX - this.worldX)/15;
+    this.worldY += (this.destinationY - this.worldY)/15;
+    this.x = this.worldX*this.scaleX;
+    this.y = this.worldY*this.scaleY;
 };
 
 function distance(a, b) { return Math.sqrt(a*a + b*b) }
 
-function Player(x, y) {
+
+//// ENTITY ////
+
+
+function Entity(x, y, radius) {
     Sprite.call(this);
 
     this.x = x;
     this.y = y;
     this.xSpeed = this.ySpeed = 0;
+    this.radius = radius;
+}
+
+Entity.prototype = new Sprite();
+
+Entity.prototype.update = function() {
+    // Update position
+    var beforeX = this.x += this.xSpeed;
+    var beforeY = this.y += this.ySpeed;
+
+    // Enforce world borders
+    this.x = Math.max(this.radius, Math.min(world.width - this.radius, this.x));
+    this.y = Math.max(this.radius, Math.min(world.height - this.radius, this.y));
+}
+
+
+//// PLAYER ////
+
+
+function Player(x, y) {
+    Entity.call(this, x, y, World.prototype.BLOCK_SIZE);
+
     this.destinationDirection = 0;
 
     this.controller = new Controller();
@@ -98,17 +140,16 @@ function Player(x, y) {
     // Add player graphic
     this.shape = new Sprite();
     this.shape.graphics.lineStyle(3, 0xffaaff, 0.90)
-    this.shape.graphics.moveTo(0, -this.SIZE);
-    this.shape.graphics.lineTo(this.SIZE, this.SIZE);
-    this.shape.graphics.lineTo(0, this.SIZE/2);
-    this.shape.graphics.lineTo(-this.SIZE, this.SIZE);
-    this.shape.graphics.lineTo(0, -this.SIZE);
+    this.shape.graphics.moveTo(0, -this.radius);
+    this.shape.graphics.lineTo(this.radius, this.radius);
+    this.shape.graphics.lineTo(0, this.radius/2);
+    this.shape.graphics.lineTo(-this.radius, this.radius);
+    this.shape.graphics.lineTo(0, -this.radius);
 
     this.addChild(this.shape);
 }
 
-Player.prototype = new Sprite();
-Player.prototype.SIZE = World.prototype.BLOCK_SIZE;
+Player.prototype = new Entity();
 Player.prototype.MAX_SPEED = 6;
 Player.prototype.ACCEL_SPEED = 0.5;
 Player.prototype.DECEL_SPEED = 0.4;
@@ -148,9 +189,6 @@ Player.prototype.update = function() {
 	this.ySpeed *= ratio;
     }
 
-    this.x += this.xSpeed;
-    this.y += this.ySpeed;
-
     // Adjust direction based on controller
     if (xMult || yMult)
 	this.destinationDirection = Math.atan2(xMult, -yMult);
@@ -162,7 +200,14 @@ Player.prototype.update = function() {
     };
     var deltaDestination = this.destinationDirection*180/Math.PI - this.shape.rotationZ;
     this.shape.rotationZ += modulate(deltaDestination)/10;
+
+    // Run update as an entity
+    Entity.prototype.update.call(this);
 };
+
+
+//// CONTROLLER ////
+
 
 function Controller() {
     this.actions = {};
