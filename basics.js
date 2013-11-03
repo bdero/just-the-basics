@@ -22,7 +22,7 @@ function update() {
     stage.x = stage.stageWidth/2;
     stage.y = stage.stageHeight/2;
 
-    world.update();
+    world.update(dt);
 }
 
 
@@ -81,20 +81,20 @@ function World(width, height) {
 World.prototype = new Sprite();
 World.prototype.BLOCK_SIZE = 16;
 
-World.prototype.update = function() {
-    this.player.update();
+World.prototype.update = function(dt) {
+    this.player.update(dt);
 
     // World scale (camera zoom)
     this.destinationZoom = 1.5 - Math.max(
 	Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
     )/this.player.MAX_SPEED*0.2;
-    this.scaleX = this.scaleY = this.scaleZ += (this.destinationZoom - this.scaleZ)/30;
+    this.scaleX = this.scaleY = this.scaleZ += (this.destinationZoom - this.scaleZ)/30*dt;
 
     // World position (camera pan)
     this.destinationX = -(this.player.x + this.player.xSpeed*25);
     this.destinationY = -(this.player.y + this.player.ySpeed*25);
-    this.worldX += (this.destinationX - this.worldX)/15;
-    this.worldY += (this.destinationY - this.worldY)/15;
+    this.worldX += (this.destinationX - this.worldX)/15*dt;
+    this.worldY += (this.destinationY - this.worldY)/15*dt;
     this.x = this.worldX*this.scaleX;
     this.y = this.worldY*this.scaleY;
 };
@@ -115,10 +115,10 @@ function Entity(x, y, radius) {
 
 Entity.prototype = new Sprite();
 
-Entity.prototype.update = function() {
+Entity.prototype.update = function(dt) {
     // Update position
-    var beforeX = this.x += this.xSpeed;
-    var beforeY = this.y += this.ySpeed;
+    var beforeX = this.x += this.xSpeed*dt;
+    var beforeY = this.y += this.ySpeed*dt;
 
     // Enforce world borders
     this.x = Math.max(this.radius, Math.min(world.width - this.radius, this.x));
@@ -153,7 +153,7 @@ Player.prototype.ACCEL_SPEED = 0.5;
 Player.prototype.DECEL_SPEED = 0.4;
 Player.prototype.DIAG_COMPONENT = 1/Math.sqrt(2);
 
-Player.prototype.update = function() {
+Player.prototype.update = function(dt) {
     // Adjust velocity based on controller
     var xMult = 0;
     var yMult = 0;
@@ -168,8 +168,8 @@ Player.prototype.update = function() {
 	    yMult *= this.DIAG_COMPONENT;
 	}
 
-	this.xSpeed += xMult*this.ACCEL_SPEED;
-	this.ySpeed += yMult*this.ACCEL_SPEED;
+	this.xSpeed += xMult*this.ACCEL_SPEED*dt;
+	this.ySpeed += yMult*this.ACCEL_SPEED*dt;
 
 	// Enforce speed limit
 	var newSpeed = distance(this.xSpeed, this.ySpeed);
@@ -196,11 +196,12 @@ Player.prototype.update = function() {
 	while (x <= -180) x += 360;
 	return x;
     };
+
     var deltaDestination = this.destinationDirection*180/Math.PI - this.shape.rotationZ;
-    this.shape.rotationZ += modulate(deltaDestination)/10;
+    this.shape.rotationZ += modulate(deltaDestination)/10*dt;
 
     // Run update as an entity
-    Entity.prototype.update.call(this);
+    Entity.prototype.update.call(this, dt);
 };
 
 
