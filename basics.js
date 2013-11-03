@@ -36,7 +36,7 @@ function World(width, height) {
     this.x = this.destinationX = this.worldX = -this.width/2;
     this.y = this.destinationY = this.worldY = -this.height*2.5;
 
-    this.destinationZoom = 1;
+    this.destinationZoom = this.worldZoom = 1;
 
     // Add background stars
     this.stars = [];
@@ -88,7 +88,10 @@ World.prototype.update = function(dt) {
     this.destinationZoom = 1.5 - Math.max(
 	Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
     )/this.player.MAX_SPEED*0.2;
-    this.scaleX = this.scaleY = this.scaleZ += (this.destinationZoom - this.scaleZ)/30*dt;
+
+    this.worldZoom += (this.destinationZoom - this.worldZoom)/30*dt;
+    this.scaleX = this.scaleY = this.scaleZ = this.worldZoom*
+	(stage.stageWidth/1024 + stage.stageHeight/768)/2;
 
     // World position (camera pan)
     this.destinationX = -(this.player.x + this.player.xSpeed*25);
