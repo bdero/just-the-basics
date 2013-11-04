@@ -6,6 +6,7 @@ function modulate(x) {
     while (x > 180) x -= 360;
     while (x <= -180) x += 360;
     return x;
+    // Math.atan2 spits out -1() < x <= 1, so the solution below doesn't 100% work as expected
     //return (x + 180)%360 - 180;
 };
 
@@ -236,6 +237,7 @@ function Controller() {
 	if (this.ACTION_HASH.hasOwnProperty(key))
 	    this.actions[key] = false;
     this.actions.aimDirection = 0;
+    this.actions.fire = false;
 
     this.deltaMouseX = this.deltaMouseY = 0;
     this.previousMouseX = stage.mouseX;
@@ -244,6 +246,9 @@ function Controller() {
     // Initialize event listeners
     stage.addEventListener2(KeyboardEvent.KEY_DOWN, this.keyDown, this);
     stage.addEventListener2(KeyboardEvent.KEY_UP, this.keyUp, this);
+
+    stage.addEventListener2(MouseEvent.MOUSE_DOWN, this.mouseDown, this);
+    stage.addEventListener2(MouseEvent.MOUSE_UP, this.mouseUp, this);
 }
 
 Controller.prototype.ACTION_HASH = {
@@ -274,6 +279,16 @@ Controller.prototype.keyDown = function(e) {
 
 Controller.prototype.keyUp = function(e) {
     this.keyboardAction(e, false);
+};
+
+Controller.prototype.mouseDown = function(e) {
+    this.actions.fire = true;
+    //console.log("firing");
+};
+
+Controller.prototype.mouseUp = function(e) {
+    this.actions.fire = false;
+    //console.log("not firing");
 };
 
 Controller.prototype.keyboardAction = function(e, value) {
