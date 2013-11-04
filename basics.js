@@ -2,6 +2,13 @@ var stage, world, timestamp;
 
 var FRAME_GOAL = 1000/60;
 
+function modulate(x) {
+    while (x > 180) x -= 360;
+    while (x <= -180) x += 360;
+    return x;
+    //return (x + 180)%360 - 180;
+};
+
 function start() {
     // Setup globals
     stage = new Stage('c');
@@ -134,13 +141,13 @@ Entity.prototype.update = function(dt) {
 function Player(x, y) {
     Entity.call(this, x, y, World.prototype.BLOCK_SIZE);
 
-    this.destinationDirection = 0;
-
     this.controller = new Controller();
+
+    this.destinationDirection = 0;
 
     // Add player graphic
     this.shape = new Sprite();
-    this.shape.graphics.lineStyle(3, 0xffaaff, 0.90)
+    this.shape.graphics.lineStyle(3, 0xffaaff, 0.90);
     this.shape.graphics.moveTo(0, -this.radius);
     this.shape.graphics.lineTo(this.radius, this.radius);
     this.shape.graphics.lineTo(0, this.radius/2);
@@ -148,6 +155,18 @@ function Player(x, y) {
     this.shape.graphics.lineTo(0, -this.radius);
 
     this.addChild(this.shape);
+
+    // Add cannon graphic
+    this.cannon = new Sprite();
+    var cannonSize = 10;
+    var cannonDistance = this.radius + 5;
+    this.cannon.graphics.lineStyle(2, 0xaa88ff, 0x90);
+    this.cannon.graphics.moveTo(0, -cannonDistance - cannonSize);
+    this.cannon.graphics.lineTo(cannonSize/2, -cannonDistance);
+    this.cannon.graphics.lineTo(-cannonSize/2, -cannonDistance);
+    this.cannon.graphics.lineTo(0, -cannonDistance - cannonSize);
+
+    this.addChild(this.cannon);
 }
 
 Player.prototype = new Entity();
@@ -157,13 +176,16 @@ Player.prototype.DECEL_SPEED = 0.4;
 Player.prototype.DIAG_COMPONENT = 1/Math.sqrt(2);
 
 Player.prototype.update = function(dt) {
+    // Update controller (for mouse movement)
+    this.controller.update(dt);
+
     // Adjust velocity based on controller
     var xMult = 0;
     var yMult = 0;
-    if (this.controller.actions['north']) yMult -= 1;
-    if (this.controller.actions['south']) yMult += 1;
-    if (this.controller.actions['west']) xMult -= 1;
-    if (this.controller.actions['east']) xMult += 1;
+    if (this.controller.actions.north) yMult -= 1;
+    if (this.controller.actions.south) yMult += 1;
+    if (this.controller.actions.west) xMult -= 1;
+    if (this.controller.actions.east) xMult += 1;
 
     if (xMult || yMult) {
 	if (xMult && yMult) {
@@ -194,14 +216,11 @@ Player.prototype.update = function(dt) {
     if (xMult || yMult)
 	this.destinationDirection = Math.atan2(xMult, -yMult);
 
-    var modulate = function(x) {
-	while (x > 180) x -= 360;
-	while (x <= -180) x += 360;
-	return x;
-    };
-
     var deltaDestination = this.destinationDirection*180/Math.PI - this.shape.rotationZ;
     this.shape.rotationZ += modulate(deltaDestination)/10*dt;
+
+    // Adjust cannon direction based on controller
+    this.cannon.rotationZ = this.controller.actions.aimDirection;
 
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
@@ -211,11 +230,18 @@ Player.prototype.update = function(dt) {
 //// Controller - Records and manages user input
 
 function Controller() {
+    // Define actions
     this.actions = {};
     for (var key in this.ACTION_HASH)
 	if (this.ACTION_HASH.hasOwnProperty(key))
 	    this.actions[key] = false;
+    this.actions.aimDirection = 0;
 
+    this.deltaMouseX = this.deltaMouseY = 0;
+    this.previousMouseX = stage.mouseX;
+    this.previousMouseY = stage.mouseY;
+
+    // Initialize event listeners
     stage.addEventListener2(KeyboardEvent.KEY_DOWN, this.keyDown, this);
     stage.addEventListener2(KeyboardEvent.KEY_UP, this.keyUp, this);
 }
@@ -228,6 +254,18 @@ Controller.prototype.ACTION_HASH = {
     "bomb": [17, 32], // control, space
     "select": [13, 32] // enter, space
 };
+
+Controller.prototype.update = function(dt) {
+    this.deltaMouseX = stage.mouseX - this.previousMouseX;
+    this.deltaMouseY = stage.mouseY - this.previousMouseY;
+    this.previousMouseX = stage.mouseX;
+    this.previousMouseY = stage.mouseY;
+
+    if (this.deltaMouseX || this.deltaMouseY) {
+	var newDirection = Math.atan2(this.deltaMouseX, -this.deltaMouseY)*180/Math.PI;
+	this.actions.aimDirection += (modulate(newDirection - this.actions.aimDirection))/5*dt;
+    }
+}
 
 Controller.prototype.keyDown = function(e) {
     //console.log(e.keyCode + " pressed");
