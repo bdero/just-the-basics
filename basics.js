@@ -184,7 +184,7 @@ Player.prototype.update = function(dt) {
     } else if (this.xSpeed || this.ySpeed) {
 	// Friction
 	var speed = distance(this.xSpeed, this.ySpeed);
-	var newSpeed = Math.max(0, speed - this.DECEL_SPEED);
+	var newSpeed = Math.max(0, speed - this.DECEL_SPEED*dt);
 	var ratio = newSpeed/speed;
 	this.xSpeed *= ratio;
 	this.ySpeed *= ratio;
