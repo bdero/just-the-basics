@@ -3,9 +3,16 @@
  * This file contains the World class.
  */
 
-
-//// World - Manages entities/boundaries and moves/scales to simulate the camera
-
+/**
+ * The world encapsulates all of the game's objects, including its
+ * background grid and stars, borders, and all of the interactive game
+ * objects.
+ *
+ * @ctor
+ * Constructs a world of the specified size.
+ * @tparam int width The width of the stage in pixels (at 1x scale).
+ * @tparam int height The height of the stage in pixels (at 1x scale).
+ */
 function World(width, height) {
     Sprite.call(this);
 

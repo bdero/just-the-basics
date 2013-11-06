@@ -3,8 +3,14 @@
  * This file contains the Controller class.
  */
 
-//// Controller - Records and manages user input
-
+/**
+ * The controller listens to for and records user input on a variety of
+ * input devices and supplies the game with a uniform way of accessing what
+ * actions user is trying to perform.
+ *
+ * @ctor
+ * Constructs a controller.
+ */
 function Controller() {
     // Define actions
     this.actions = {};
@@ -45,7 +51,7 @@ Controller.prototype.update = function(dt) {
 	var newDirection = Math.atan2(this.deltaMouseX, -this.deltaMouseY)*180/Math.PI;
 	this.actions.aimDirection += (modulate(newDirection - this.actions.aimDirection))/5*dt;
     }
-}
+};
 
 Controller.prototype.keyDown = function(e) {
     //console.log(e.keyCode + " pressed");

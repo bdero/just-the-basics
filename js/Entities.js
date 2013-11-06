@@ -2,11 +2,20 @@
  * @file
  * The World entity hierarchy.
  * This file contains the Entity class as well as all classes which
- * extend from entity.
+ * extend from Entity.
  */
 
-//// Entity - Anything that interacts with the world and requires movement/border enforcement
-
+/**
+ * An entity is anything that interacts with the world and
+ * requires movement/border enforcement.
+ *
+ * @see World
+ * @ctor
+ * Constructs an entity with the given initial position and collision radius.
+ * @tparam float x The initial X-position in the world for the entity.
+ * @tparam float y The initial Y-position in the world for the entity.
+ * @tparam float radius The collision radius for the entity (if applicable).
+ */
 function Entity(x, y, radius) {
     Sprite.call(this);
 
@@ -28,9 +37,17 @@ Entity.prototype.update = function(dt) {
     this.y = Math.max(this.radius, Math.min(world.height - this.radius, this.y));
 }
 
-
-//// Player - Entity that's controlled by a Controller
-
+/**
+ * The player is an entity with which the user interacts with the world
+ * through a controller.
+ *
+ * @see Entity
+ * @see Controller
+ * @ctor
+ * Constructs a player entity with the given initial position.
+ * @tparam float x The initial X-position in the world for the player.
+ * @tparam float y The initial Y-position in the world for the player.
+ */
 function Player(x, y) {
     Entity.call(this, x, y, World.prototype.BLOCK_SIZE);
 
