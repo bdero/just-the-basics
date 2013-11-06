@@ -1,3 +1,8 @@
+/**
+ * @file
+ * This file contains the Controller class.
+ */
+
 //// Controller - Records and manages user input
 
 function Controller() {

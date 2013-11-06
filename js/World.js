@@ -1,3 +1,9 @@
+/**
+ * @file
+ * This file contains the World class.
+ */
+
+
 //// World - Manages entities/boundaries and moves/scales to simulate the camera
 
 function World(width, height) {

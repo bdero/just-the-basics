@@ -1,3 +1,10 @@
+/**
+ * @file
+ * The World entity hierarchy.
+ * This file contains the Entity class as well as all classes which
+ * extend from entity.
+ */
+
 //// Entity - Anything that interacts with the world and requires movement/border enforcement
 
 function Entity(x, y, radius) {

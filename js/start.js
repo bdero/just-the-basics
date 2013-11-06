@@ -1,3 +1,11 @@
+/**
+ * @file
+ * Basic core functions.
+ * This file contains the basic initialization and update functions,
+ * as well as several global variables, constants, and miscellaneous
+ * functions.
+ */
+
 var stage, world, timestamp;
 
 var FRAME_GOAL = 1000/60;
