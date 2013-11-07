@@ -27,6 +27,13 @@ function Entity(x, y, radius) {
 
 Entity.prototype = new Sprite();
 
+/**
+ * Updates the position of the entity depending on the entity's presently
+ * <code>xSpeed</code> and <code>ySpeed</code> values. The entity's position
+ * is also cropped to be within the world's borders.
+ * @see World
+ * @tparam float dt The delta time multipler for this frame.
+ */
 Entity.prototype.update = function(dt) {
     // Update position
     var beforeX = this.x += this.xSpeed*dt;
@@ -35,7 +42,7 @@ Entity.prototype.update = function(dt) {
     // Enforce world borders
     this.x = Math.max(this.radius, Math.min(world.width - this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(world.height - this.radius, this.y));
-}
+};
 
 /**
  * The player is an entity with which the user interacts with the world
@@ -85,6 +92,14 @@ Player.prototype.ACCEL_SPEED = 0.5;
 Player.prototype.DECEL_SPEED = 0.4;
 Player.prototype.DIAG_COMPONENT = 1/Math.sqrt(2);
 
+/**
+ * Updates the direction and speed of the player based on the player's
+ * controller input state, then updates the player's position by calling
+ * the parent class <code>Entity</code>'s update method.
+ * @see Entity
+ * @see Controller
+ * @tparam float dt The delta time multipler for this frame.
+ */
 Player.prototype.update = function(dt) {
     // Update controller (for mouse movement)
     this.controller.update(dt);

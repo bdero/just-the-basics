@@ -41,6 +41,11 @@ Controller.prototype.ACTION_HASH = {
     "select": [13, 32] // enter, space
 };
 
+/**
+ * Updates the mouse position and delta movement states based on mouse
+ * mouse position difference from the last frame.
+ * @tparam float dt The delta time multipler for this frame.
+ */
 Controller.prototype.update = function(dt) {
     this.deltaMouseX = stage.mouseX - this.previousMouseX;
     this.deltaMouseY = stage.mouseY - this.previousMouseY;
@@ -53,25 +58,48 @@ Controller.prototype.update = function(dt) {
     }
 };
 
+/**
+ * Event listener callback that triggers whenever any keyboard key is pressed. 
+ * @tparam KeyboardEvent e Keyboard event generated when triggered by the event listener.
+ */
 Controller.prototype.keyDown = function(e) {
     //console.log(e.keyCode + " pressed");
     this.keyboardAction(e, true);
 };
 
+/**
+ * Event listener callback that triggers whenever any keyboard key is released. 
+ * @tparam KeyboardEvent e Keyboard event generated when triggered by the event listener.
+ */
 Controller.prototype.keyUp = function(e) {
     this.keyboardAction(e, false);
 };
 
+/**
+ * Event listener callback that triggers whenever the left mouse button is pressed. 
+ * @tparam MouseEvent e Mouse event generated when triggered by the event listener.
+ */
 Controller.prototype.mouseDown = function(e) {
     this.actions.fire = true;
     //console.log("firing");
 };
 
+/**
+ * Event listener callback that triggers whenever the left mouse button is released. 
+ * @tparam MouseEvent e Mouse event generated when triggered by the event listener.
+ */
 Controller.prototype.mouseUp = function(e) {
     this.actions.fire = false;
     //console.log("not firing");
 };
 
+/**
+ * Changes the input state of the actions that correspond to a given
+ * keyboard event. The value of the modified action is changed to
+ * the given <code>value</code>.
+ * @tparam KeyboardEvent e Keyboard event generated when triggered by one of the event listeners.
+ * @tparam boolean value The value to set all changed actions to.
+ */
 Controller.prototype.keyboardAction = function(e, value) {
     for (var key in this.ACTION_HASH)
 	if (this.ACTION_HASH.hasOwnProperty(key))

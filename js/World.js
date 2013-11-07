@@ -66,6 +66,11 @@ function World(width, height) {
 World.prototype = new Sprite();
 World.prototype.BLOCK_SIZE = 16;
 
+/**
+ * Updates the world including all initialized entities. The scale and
+ * position of the world are calculated here to simulate camera movement.
+ * @tparam float dt The delta time multiplier for this frame.
+ */
 World.prototype.update = function(dt) {
     this.player.update(dt);
 
