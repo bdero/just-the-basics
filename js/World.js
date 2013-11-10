@@ -18,9 +18,10 @@ function World(width, height) {
 
     this.width = width;
     this.height = height;
+    // Initialize position camera position variables
     this.x = this.destinationX = this.worldX = -this.width/2;
     this.y = this.destinationY = this.worldY = -this.height*2.5;
-
+    // Initialize camera zoom variables
     this.destinationZoom = this.worldZoom = 1;
 
     // Add background stars
@@ -72,7 +73,9 @@ World.prototype.BLOCK_SIZE = 16;
  * @tparam float dt The delta time multiplier for this frame.
  */
 World.prototype.update = function(dt) {
-    this.player.update(dt);
+    for (var i in this.entities)
+	this.entities[i].update(dt);
+    //this.entities[0].update(dt);
 
     // World scale (camera zoom)
     this.destinationZoom = 1.5 - Math.max(

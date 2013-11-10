@@ -150,3 +150,36 @@ Player.prototype.update = function(dt) {
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
 };
+
+/**
+ * Enemies are entities which position themselves on the world's collision grid. They
+ * kill the player upon collision, invoking massive damage. (Please see specific enemies,
+ * such as "Giant Enemy Crab")
+ *
+ * @see Entity
+ * @see World
+ * @ctor
+ * Constructs an enemy entity with the given initial position.
+ * @tparam float x The initial X-position in the world for the enemy.
+ * @tparam float y The initial Y-position in the world for the enemy.
+ * @tparam float radius The collision radius for the enemy.
+ */
+function Enemy(x, y, radius) {
+    Entity.call(this, x, y, radius);
+}
+
+Enemy.prototype = new Entity();
+
+/**
+ * Updates the enemy's position on the enemy collision grid, then updates the player's
+ * position by calling the parent class <code>Entity</code>'s update method.
+ * @see Entity
+ * @see World
+ * @tparam float dt The delta time multipler for this frame.
+ */
+Enemy.prototype.update = new function(dt) {
+    // Position self on the enemy collision grid
+
+    // Run update as an entity
+    Entity.prototype.update.call(this, dt);
+}
