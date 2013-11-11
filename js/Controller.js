@@ -54,7 +54,8 @@ Controller.prototype.update = function(dt) {
 
     if (this.deltaMouseX || this.deltaMouseY) {
 	var newDirection = Math.atan2(this.deltaMouseX, -this.deltaMouseY)*180/Math.PI;
-	this.actions.aimDirection += (modulate(newDirection - this.actions.aimDirection))/5*dt;
+	this.actions.aimDirection += asymptote(
+	    modulate(newDirection - this.actions.aimDirection), 5, dt);
     }
 };
 

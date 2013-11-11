@@ -71,3 +71,14 @@ function modulate(x) {
     // doesn't 100% work as expected
     //return (x + 180)%360 - 180;
 }
+
+/**
+ * Calculates progress in an asymptotic ("easing") function. This is useful when delta
+ * time is involved.
+ * @tparam float current The distance to traveled (if delta time = infinity).
+ * @tparam float dt The delta time multiplier for this frame.
+ * @treturn float Returns the progress in an asymptotic function given the parameters.
+ */
+function asymptote(dist, divisor, dt) {
+    return (1 - 1/(dt/divisor + 1))*dist;
+}

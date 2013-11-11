@@ -82,15 +82,15 @@ World.prototype.update = function(dt) {
 	Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
     )/this.player.MAX_SPEED*0.2;
 
-    this.worldZoom += (this.destinationZoom - this.worldZoom)/30*dt;
+    this.worldZoom += asymptote(this.destinationZoom - this.worldZoom, 30, dt);
     this.scaleX = this.scaleY = this.scaleZ = this.worldZoom*
 	(stage.stageWidth/1024 + stage.stageHeight/768)/2;
 
     // World position (camera pan)
     this.destinationX = -(this.player.x + this.player.xSpeed*25);
     this.destinationY = -(this.player.y + this.player.ySpeed*25);
-    this.worldX += (this.destinationX - this.worldX)/15*dt;
-    this.worldY += (this.destinationY - this.worldY)/15*dt;
+    this.worldX += asymptote(this.destinationX - this.worldX, 15, dt);
+    this.worldY += asymptote(this.destinationY - this.worldY, 15, dt);
     this.x = this.worldX*this.scaleX;
     this.y = this.worldY*this.scaleY;
 };
