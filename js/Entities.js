@@ -76,6 +76,10 @@ Entity.prototype.getGridPosition = function() {
     ];
 };
 
+/**
+ * Check whether this entity is touching a world border.
+ * @treturn boolean Returns whether or not this entity is touching a wall.
+ */
 Entity.prototype.isTouchingWall = function() {
     return this.x <= this.radius || this.y <= this.radius ||
 	this.x >= world.width - this.radius ||
@@ -195,6 +199,12 @@ Player.prototype.update = function(dt) {
 
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
+
+    // Sometimes generate a random bullet
+    if (Math.random() < 0.2)
+	new Bullet(this.x, this.y - this.radius + 5,
+		   this.xSpeed, this.ySpeed - 8,
+		   this.controller.actions.aimDirection);
 };
 
 /**
@@ -221,10 +231,10 @@ function Bullet(x, y, xSpeed, ySpeed, direction) {
     this.shape = new Sprite();
     var shapeSize = this.radius/2;
     this.shape.graphics.lineStyle(2, 0xdddd44, 0x90);
-    this.shape.graphics.moveTo(0, shapeSize);
-    this.shape.graphics.lineTo(shapeSize, -shapeSize);
-    this.shape.graphics.lineTo(-shapeSize, -shapeSize);
-    this.shape.graphics.lineTo(0, shapeSize);
+    this.shape.graphics.moveTo(0, -shapeSize);
+    this.shape.graphics.lineTo(-shapeSize, shapeSize);
+    this.shape.graphics.lineTo(shapeSize, shapeSize);
+    this.shape.graphics.lineTo(0, -shapeSize);
 
     this.addChild(this.shape);
     this.shape.rotationZ = direction;

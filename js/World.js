@@ -60,9 +60,9 @@ function World(width, height) {
     // Set up entity reference and collision grid
     this.entities = [];
     this.collisionGrid = [];
-    for (var i = 0; i < width; i += this.COLLISION_SIZE) {
+    for (var i = 0; i*this.COLLISION_SIZE < width; i++) {
 	this.collisionGrid[i] = [];
-	for (var j = 0; j < height; j += this.COLLISION_SIZE)
+	for (var j = 0; j*this.COLLISION_SIZE < height; j++)
 	    this.collisionGrid[i][j] = [];
     }
 
