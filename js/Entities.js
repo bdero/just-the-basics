@@ -287,7 +287,7 @@ Bullet.prototype.update = function(dt) {
  * @see Entity
  * @see World
  * @ctor
- * Constructs an enemy entity with the given initial position.
+ * Constructs an enemy entity with the given initial position and collision radius.
  * @tparam float x The initial X-position in the world for the enemy.
  * @tparam float y The initial Y-position in the world for the enemy.
  * @tparam float radius The collision radius for the enemy.
@@ -332,4 +332,65 @@ Enemy.prototype.die = function() {
     world.collisionGrid[gridPos[0]][gridPos[1]].removeObject(this);
 
     Entity.prototype.die.call(this);
+};
+
+/**
+ * SpinStars are star-shaped enemies that simply float around aimlessly, spinning.
+ *
+ * @see Enemy
+ * @see Entity
+ * @ctor
+ * Constructs a SpinStar enemy entity with the given initial position.
+ * @tparam float x The initial X-position in the world for the enemy.
+ * @tparam float y The initial Y-position in the world for the enemy.
+ */
+function SpinStar(x, y) {
+    Enemy.call(this, x, y, 40);
+
+    // Initial direction and velocity
+    this.direction = Math.random()*Math.PI*2;
+    this.speed = 3 + Math.random()*1.5;
+    this.xSpeed = Math.sin(this.direction)*this.speed;
+    this.ySpeed = -Math.cos(this.direction)*this.speed;
+
+    // Graphical spin speed
+    this.spinSpeed = 0.03 + Math.random()*0.05;
+    if (Math.random() < 0.5) this.spinSpeed *= -1;
+
+    // Add spin star graphic
+    this.shape = new Sprite();
+    this.shape.graphics.lineStyle(3, 0x2288ee, 0x90);
+    this.shape.graphics.moveTo(0, this.radius);
+    var deltaAngle = 2*Math.PI/8*3;
+    for (var i = 1; i <= 8; i++) {
+	this.shape.graphics.lineTo(
+	    Math.sin(deltaAngle*i)*this.radius,
+	    Math.cos(deltaAngle*i)*this.radius
+	);
+    }
+
+    this.addChild(this.shape);
+}
+
+SpinStar.prototype = new Enemy();
+
+/**
+ * Implements the artificial intelligence for SpinStars enemies, and updates
+ * the enemy's position on the enemy collision grid by calling the parent
+ * class <code>Enemy</code>'s update method.
+ * @see Enemy
+ * @tparam float dt The delta time multipler for this frame.
+ */
+SpinStar.prototype.update = function(dt) {
+    // Update rotation
+    this.sprite.rotationZ += this.spinSpeed;
+
+    // Run update as an enemy
+    Enemy.prototype.update.call(this, dt);
+
+    // Bounce off of walls
+    if (this.x <= this.radius || this.x >= world.width - this.radius)
+	this.xSpeed *= -1;
+    if (this.y <= this.rafius || this.y >= world.height - this.radius)
+	this.ySpeed *= -1;
 };
