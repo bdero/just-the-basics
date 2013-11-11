@@ -151,11 +151,55 @@ Player.prototype.update = function(dt) {
     Entity.prototype.update.call(this, dt);
 };
 
-function Bullet(x, y, xSpeed, ySpeed) {
+/**
+ * Bullets are entities that are fired by the player and travel at a constant velocity
+ * until either destroying an enemy or hitting one of the world's borders.
+ *
+ * @see Player
+ * @see World
+ * @ctor
+ * Constructs a bullet entity with the given initial position and velocity.
+ * @tparam float x The initial X-position in the world for the bullet.
+ * @tparam float y The initial Y-position in the world for the bullet.
+ * @tparam float xSpeed The X-velocity for the bullet.
+ * @tparam float ySpeed The Y-velocity for the bullet.
+ * @tparam float direction The direction of the bullet's graphic.
+ */
+function Bullet(x, y, xSpeed, ySpeed, direction) {
     Entity.call(this, x, y, 10);
+
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
+
+    // Add bullet graphic
+    this.shape = new Sprite();
+    var shapeSize = this.radius/2;
+    this.shape.graphics.lineStyle(2, 0xdddd44, 0x90);
+    this.shape.graphics.moveTo(0, shapeSize);
+    this.shape.graphics.lineTo(shapeSize, -shapeSize);
+    this.shape.graphics.lineTo(-shapeSize, -shapeSize);
+    this.shape.graphics.lineTo(0, shapeSize);
+
+    this.addChild(this.shape);
+    this.shape.rotationZ = direction;
 }
 
 Bullet.prototype = new Entity();
+
+/**
+ * Updates the bullet's position by calling the parent class <code>Entity</code>'s
+ * update method, then checks for collision of nearby enemies.
+ * @see Entity
+ * @see World
+ * @tparam float dt The delta time multipler for this frame.
+ */
+Bullet.prototype.update = function() {
+    // Run update as an entity
+    Entity.prototype.update.call(this, dt);
+
+    // Collision detection
+
+}
 
 /**
  * Enemies are entities which position themselves on the world's collision grid. They
@@ -194,8 +238,8 @@ Enemy.prototype.getGridPosition = function() {
 }
 
 /**
- * Updates the enemy's position on the enemy collision grid, then updates the player's
- * position by calling the parent class <code>Entity</code>'s update method.
+ * Updates the enemy's position on the enemy collision grid, then updates the enemy's
+ * position for the world by calling the parent class <code>Entity</code>'s update method.
  * @see Entity
  * @see World
  * @tparam float dt The delta time multipler for this frame.
