@@ -82,3 +82,11 @@ function modulate(x) {
 function asymptote(dist, divisor, dt) {
     return (1 - 1/(dt/divisor + 1))*dist;
 }
+
+// Array extensions
+Array.prototype.removeObject = function(obj) {
+    for (var i = 0; i < this.length; i++)
+	if (this[i] === obj) return this.splice(i, 1);
+
+    return null;
+};

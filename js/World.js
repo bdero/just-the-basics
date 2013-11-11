@@ -57,8 +57,16 @@ function World(width, height) {
     this.graphics.lineTo(0, height);
     this.graphics.lineTo(0, 0);
 
-    this.entities = [];
 
+    this.entities = [];
+    this.collisionGrid = [];
+    for (var i = 0; i < width; i += this.COLLISION_SIZE) {
+	this.collisionGrid[i] = [];
+	for (var j = 0; j < height; j += this.COLLISION_SIZE)
+	    this.collisionGrid[i][j] = [];
+    }
+
+    // Add player
     this.player = new Player(width/2, height/2);
     this.addChild(this.player);
     this.entities.push(this.player);
@@ -66,6 +74,7 @@ function World(width, height) {
 
 World.prototype = new Sprite();
 World.prototype.BLOCK_SIZE = 16;
+World.prototype.COLLISION_SIZE = 64;
 
 /**
  * Updates the world including all initialized entities. The scale and
@@ -73,7 +82,7 @@ World.prototype.BLOCK_SIZE = 16;
  * @tparam float dt The delta time multiplier for this frame.
  */
 World.prototype.update = function(dt) {
-    for (var i in this.entities)
+    for (var i = 0; i < this.entities.length; i++)
 	this.entities[i].update(dt);
     //this.entities[0].update(dt);
 

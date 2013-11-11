@@ -151,6 +151,12 @@ Player.prototype.update = function(dt) {
     Entity.prototype.update.call(this, dt);
 };
 
+function Bullet(x, y, xSpeed, ySpeed) {
+    Entity.call(this, x, y, 10);
+}
+
+Bullet.prototype = new Entity();
+
 /**
  * Enemies are entities which position themselves on the world's collision grid. They
  * kill the player upon collision, invoking massive damage. (Please see specific enemies,
@@ -166,9 +172,26 @@ Player.prototype.update = function(dt) {
  */
 function Enemy(x, y, radius) {
     Entity.call(this, x, y, radius);
+
+    var gridPosition = this.getGridPosition();
+    this.gridX = gridPosition[0];
+    this.gridY = gridPosition[1];
+    world.collisionGrid[this.gridX][this.gridY].push(this);
 }
 
 Enemy.prototype = new Entity();
+
+/**
+ * Get the enemy's position on the world collision grid based on the current position
+ * on the world.
+ * @treturn Array Returns an array containing the current position on the world collision grid.
+ */
+Enemy.prototype.getGridPosition = function() {
+    return [
+	Math.floor(this.x/world.COLLISION_SIZE),
+	Math.floor(this.y/world.COLLISION_SIZE)
+    ];
+}
 
 /**
  * Updates the enemy's position on the enemy collision grid, then updates the player's
@@ -177,8 +200,15 @@ Enemy.prototype = new Entity();
  * @see World
  * @tparam float dt The delta time multipler for this frame.
  */
-Enemy.prototype.update = new function(dt) {
+Enemy.prototype.update = function(dt) {
     // Position self on the enemy collision grid
+    var gridPosition = this.getGridPosition();
+    if (gridPosition[0] != this.gridX || gridPosition[1] != this.gridY) {
+	world.collisionGrid[this.gridX][this.gridY].removeObject(this);
+	this.gridX = gridPosition[0];
+	this.gridY = gridPosition[1];
+	world.collisionGrid[this.gridX][this.gridY].push(this);
+    }
 
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
