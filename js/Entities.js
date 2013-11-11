@@ -141,6 +141,7 @@ Player.prototype.MAX_SPEED = 6;
 Player.prototype.ACCEL_SPEED = 0.5;
 Player.prototype.DECEL_SPEED = 0.4;
 Player.prototype.DIAG_COMPONENT = 1/Math.sqrt(2);
+Player.prototype.BULLET_CLOCK = 5;
 
 /**
  * Updates the direction and speed of the player based on the player's
@@ -200,11 +201,24 @@ Player.prototype.update = function(dt) {
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
 
-    // Sometimes generate a random bullet
-    if (Math.random() < 0.2)
-	new Bullet(this.x, this.y - this.radius + 5,
-		   this.xSpeed, this.ySpeed - 8,
-		   this.controller.actions.aimDirection);
+    // Fire bullets
+    if (this.controller.actions.fire) {
+	while (this.bulletTimer <= 0) {
+	    var aimDir = this.controller.actions.aimDirection/180*Math.PI;
+	    var aimX = Math.sin(aimDir);
+	    var aimY = -Math.cos(aimDir);
+	    var dist = this.radius + 5;
+	    var speed = 8;
+	    new Bullet(this.x + aimX*dist, this.y + aimY*dist,
+		       speed*aimX + this.xSpeed, speed*aimY + this.ySpeed,
+		       this.controller.actions.aimDirection);
+
+	    this.bulletTimer += this.BULLET_CLOCK;
+	}
+	this.bulletTimer -= 1*dt;
+    } else {
+	this.bulletTimer = 0;
+    }
 };
 
 /**
