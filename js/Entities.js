@@ -11,7 +11,8 @@
  *
  * @see World
  * @ctor
- * Constructs an entity with the given initial position and collision radius.
+ * Constructs an entity with the given initial position and collision radius, then
+ * adds it to the world for displaying and updating.
  * @tparam float x The initial X-position in the world for the entity.
  * @tparam float y The initial Y-position in the world for the entity.
  * @tparam float radius The collision radius for the entity (if applicable).
@@ -23,6 +24,12 @@ function Entity(x, y, radius) {
     this.y = y;
     this.xSpeed = this.ySpeed = 0;
     this.radius = radius;
+
+    // Add entity to the world
+    if (x != undefined && y != undefined && radius != undefined) {
+	world.entities.push(this);
+	world.addChild(this);
+    }
 }
 
 Entity.prototype = new Sprite();
@@ -43,6 +50,39 @@ Entity.prototype.update = function(dt) {
     this.x = Math.max(this.radius, Math.min(world.width - this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(world.height - this.radius, this.y));
 };
+
+/**
+ * Determines whether another given entity is colliding with this one or not.
+ * @tparam Entity other The second entity to be used in the collision check.
+ * @treturn boolean Returns whether or not the given entity is colliding with this one.
+ */
+Entity.prototype.isColliding = function(other) {
+    var xDist = other.x - this.x;
+    var yDist = other.y - this.y;
+    var maxDist = this.radius + other.radius;
+
+    return xDist*xDist + yDist*yDist < maxDist*maxDist;
+};
+
+/**
+ * Get the entity's position on the world collision grid based on the current position
+ * on the world.
+ * @treturn Array Returns an array containing the current position on the world collision grid.
+ */
+Entity.prototype.getGridPosition = function() {
+    return [
+	Math.floor(this.x/world.COLLISION_SIZE),
+	Math.floor(this.y/world.COLLISION_SIZE)
+    ];
+};
+
+/**
+ * Remove the entity from the world.
+ */
+Entity.prototype.die = function() {
+    world.entities.removeObject(this);
+    world.removeChild(this);
+}
 
 /**
  * The player is an entity with which the user interacts with the world
@@ -193,13 +233,16 @@ Bullet.prototype = new Entity();
  * @see World
  * @tparam float dt The delta time multipler for this frame.
  */
-Bullet.prototype.update = function() {
+Bullet.prototype.update = function(dt) {
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
 
     // Collision detection
-
-}
+    var enemy = world.findCollidingEnemy(this);
+    if (enemy) {
+	world.entities.removeObject(this);
+    }
+};
 
 /**
  * Enemies are entities which position themselves on the world's collision grid. They
@@ -226,18 +269,6 @@ function Enemy(x, y, radius) {
 Enemy.prototype = new Entity();
 
 /**
- * Get the enemy's position on the world collision grid based on the current position
- * on the world.
- * @treturn Array Returns an array containing the current position on the world collision grid.
- */
-Enemy.prototype.getGridPosition = function() {
-    return [
-	Math.floor(this.x/world.COLLISION_SIZE),
-	Math.floor(this.y/world.COLLISION_SIZE)
-    ];
-}
-
-/**
  * Updates the enemy's position on the enemy collision grid, then updates the enemy's
  * position for the world by calling the parent class <code>Entity</code>'s update method.
  * @see Entity
@@ -256,4 +287,11 @@ Enemy.prototype.update = function(dt) {
 
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
-}
+};
+
+Enemy.prototype.die = function() {
+    var gridPos = this.getGridPosition();
+    world.collisionGrid[gridPos[0]][gridPos[1]].removeObject(this);
+
+    Entity.prototype.die.call(this);
+};

@@ -57,7 +57,7 @@ function World(width, height) {
     this.graphics.lineTo(0, height);
     this.graphics.lineTo(0, 0);
 
-
+    // Set up entity reference and collision grid
     this.entities = [];
     this.collisionGrid = [];
     for (var i = 0; i < width; i += this.COLLISION_SIZE) {
@@ -67,9 +67,10 @@ function World(width, height) {
     }
 
     // Add player
-    this.player = new Player(width/2, height/2);
-    this.addChild(this.player);
-    this.entities.push(this.player);
+    this.player = null;
+    //this.player = new Player(width/2, height/2);
+    //this.addChild(this.player);
+    //this.entities.push(this.player);
 }
 
 World.prototype = new Sprite();
@@ -82,6 +83,9 @@ World.prototype.COLLISION_SIZE = 64;
  * @tparam float dt The delta time multiplier for this frame.
  */
 World.prototype.update = function(dt) {
+    if (!this.player)
+	this.player = new Player(this.width/2, this.height/2);
+
     for (var i = 0; i < this.entities.length; i++)
 	this.entities[i].update(dt);
     //this.entities[0].update(dt);
@@ -102,4 +106,32 @@ World.prototype.update = function(dt) {
     this.worldY += asymptote(this.destinationY - this.worldY, 15, dt);
     this.x = this.worldX*this.scaleX;
     this.y = this.worldY*this.scaleY;
+};
+
+/**
+ * Collision checks all of the nearby enemies of the given entity, returning
+ * the first enemy found.
+ * @tparam Entity entity The entity to check nearby enemy collisions with.
+ * @treturn Enemy Returns the first found enemy that's colliding with the given entity (or null).
+ */
+World.prototype.findCollidingEnemy = function(entity) {
+    var gridWidth = this.collisionGrid.length;
+    var gridHeight = this.collisionGrid[0].length;
+    var gridPos = entity.getGridPosition();
+
+    for (var i = Math.max(0, gridPos[0] - 1);
+	 i < Math.min(gridWidth, gridPos[0] + 1);
+	 i++) {
+	for (var j = Math.max(0, gridPos[1] - 1);
+	     j < Math.min(gridHeight, gridPos[1] + 1);
+	     j++) {
+	    for (var k = 0; k < this.collisionGrid[i][j].length; k++) {
+		var enemy = this.collisionGrid[i][j][k];
+		if (entity.isColliding(enemy))
+		    return enemy;
+	    }
+	}
+    }
+
+    return null;
 };
