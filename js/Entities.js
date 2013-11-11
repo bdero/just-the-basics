@@ -76,13 +76,19 @@ Entity.prototype.getGridPosition = function() {
     ];
 };
 
+Entity.prototype.isTouchingWall = function() {
+    return this.x <= this.radius || this.y <= this.radius ||
+	this.x >= world.width - this.radius ||
+	this.y >= world.height - this.radius;
+};
+
 /**
  * Remove the entity from the world.
  */
 Entity.prototype.die = function() {
     world.entities.removeObject(this);
     world.removeChild(this);
-}
+};
 
 /**
  * The player is an entity with which the user interacts with the world
@@ -240,8 +246,13 @@ Bullet.prototype.update = function(dt) {
     // Collision detection
     var enemy = world.findCollidingEnemy(this);
     if (enemy) {
-	world.entities.removeObject(this);
+	this.die();
+	enemy.die();
+
+	// Increase score
     }
+    if (this.isTouchingWall())
+	this.die();
 };
 
 /**
@@ -289,6 +300,9 @@ Enemy.prototype.update = function(dt) {
     Entity.prototype.update.call(this, dt);
 };
 
+/**
+ * Remove the enemy from the world and collision grid.
+ */
 Enemy.prototype.die = function() {
     var gridPos = this.getGridPosition();
     world.collisionGrid[gridPos[0]][gridPos[1]].removeObject(this);
