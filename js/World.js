@@ -86,9 +86,13 @@ World.prototype.update = function(dt) {
     if (!this.player)
 	this.player = new Player(this.width/2, this.height/2);
 
+    // Add random SpinStars
+    if (Math.random() < 0.02)
+	new SpinStar(Math.random()*this.width, Math.random()*this.height);
+
+    // Update all entities
     for (var i = 0; i < this.entities.length; i++)
 	this.entities[i].update(dt);
-    //this.entities[0].update(dt);
 
     // World scale (camera zoom)
     this.destinationZoom = 1.5 - Math.max(

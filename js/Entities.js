@@ -295,10 +295,12 @@ Bullet.prototype.update = function(dt) {
 function Enemy(x, y, radius) {
     Entity.call(this, x, y, radius);
 
-    var gridPosition = this.getGridPosition();
-    this.gridX = gridPosition[0];
-    this.gridY = gridPosition[1];
-    world.collisionGrid[this.gridX][this.gridY].push(this);
+    if (x != undefined && y != undefined && radius != undefined) {
+	var gridPosition = this.getGridPosition();
+	this.gridX = gridPosition[0];
+	this.gridY = gridPosition[1];
+	world.collisionGrid[this.gridX][this.gridY].push(this);
+    }
 }
 
 Enemy.prototype = new Entity();
@@ -328,8 +330,10 @@ Enemy.prototype.update = function(dt) {
  * Remove the enemy from the world and collision grid.
  */
 Enemy.prototype.die = function() {
-    var gridPos = this.getGridPosition();
-    world.collisionGrid[gridPos[0]][gridPos[1]].removeObject(this);
+    //var gridPos = this.getGridPosition();
+    if (world.collisionGrid[this.gridX][this.gridY].removeObject(this) == null)
+	console.log("what");
+    //console.log("DIE");
 
     Entity.prototype.die.call(this);
 };
@@ -345,21 +349,21 @@ Enemy.prototype.die = function() {
  * @tparam float y The initial Y-position in the world for the enemy.
  */
 function SpinStar(x, y) {
-    Enemy.call(this, x, y, 40);
+    Enemy.call(this, x, y, 20);
 
     // Initial direction and velocity
     this.direction = Math.random()*Math.PI*2;
-    this.speed = 3 + Math.random()*1.5;
+    this.speed = 1.5 + Math.random();
     this.xSpeed = Math.sin(this.direction)*this.speed;
     this.ySpeed = -Math.cos(this.direction)*this.speed;
 
     // Graphical spin speed
-    this.spinSpeed = 0.03 + Math.random()*0.05;
+    this.spinSpeed = 5 + Math.random()*10;
     if (Math.random() < 0.5) this.spinSpeed *= -1;
 
     // Add spin star graphic
     this.shape = new Sprite();
-    this.shape.graphics.lineStyle(3, 0x2288ee, 0x90);
+    this.shape.graphics.lineStyle(3, 0x2288dd, 0x90);
     this.shape.graphics.moveTo(0, this.radius);
     var deltaAngle = 2*Math.PI/8*3;
     for (var i = 1; i <= 8; i++) {
@@ -383,7 +387,7 @@ SpinStar.prototype = new Enemy();
  */
 SpinStar.prototype.update = function(dt) {
     // Update rotation
-    this.sprite.rotationZ += this.spinSpeed;
+    this.shape.rotationZ += this.spinSpeed*dt;
 
     // Run update as an enemy
     Enemy.prototype.update.call(this, dt);
@@ -391,6 +395,7 @@ SpinStar.prototype.update = function(dt) {
     // Bounce off of walls
     if (this.x <= this.radius || this.x >= world.width - this.radius)
 	this.xSpeed *= -1;
-    if (this.y <= this.rafius || this.y >= world.height - this.radius)
+    if (this.y <= this.radius || this.y >= world.height - this.radius)
 	this.ySpeed *= -1;
 };
+
