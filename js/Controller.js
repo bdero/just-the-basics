@@ -38,17 +38,6 @@ function Controller() {
     stage.addEventListener2(MouseEvent.MOUSE_UP, this.mouseUp, this);
 }
 
-Controller.pointerLockClick = function() {
-    if (!Pointer.isLocked())
-	Pointer.lock();
-};
-
-Controller.pointerLockMove = function(e) {
-    //console.log(e.movementX, e.movementY);
-    Pointer.xBuff += e.movementX;
-    Pointer.yBuff += e.movementY;
-};
-
 Controller.prototype.ACTION_HASH = {
     "north": [87, 38], // W, up
     "south": [83, 40], // S, down
@@ -56,6 +45,29 @@ Controller.prototype.ACTION_HASH = {
     "east": [68, 39], // D, right
     "bomb": [17, 32], // control, space
     "select": [13, 32] // enter, space
+};
+
+/**
+ * Special callback function for mouse clicking to request pointer locking,
+ * since the pointer lock API seems to only succeed when requests are made
+ * during a click callback (and not other kinds of callbacks, like Ivank.js
+ * "callbacks").
+ */
+Controller.pointerLockClick = function() {
+    if (!Pointer.isLocked())
+	Pointer.lock();
+};
+
+/**
+ * Special callback function for mouse movement while pointer locking is
+ * activated. The mouse movement is appended to buffers that are accounted
+ * for in the controller's update loop (where all the mouse-related action
+ * happens).
+ */
+Controller.pointerLockMove = function(e) {
+    //console.log(e.movementX, e.movementY);
+    Pointer.xBuff += e.movementX;
+    Pointer.yBuff += e.movementY;
 };
 
 /**
