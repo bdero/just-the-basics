@@ -330,10 +330,7 @@ Enemy.prototype.update = function(dt) {
  * Remove the enemy from the world and collision grid.
  */
 Enemy.prototype.die = function() {
-    //var gridPos = this.getGridPosition();
-    if (world.collisionGrid[this.gridX][this.gridY].removeObject(this) == null)
-	console.log("what");
-    //console.log("DIE");
+    world.collisionGrid[this.gridX][this.gridY].removeObject(this);
 
     Entity.prototype.die.call(this);
 };
