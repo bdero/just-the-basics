@@ -24,6 +24,12 @@ function Controller() {
     this.previousMouseX = stage.mouseX;
     this.previousMouseY = stage.mouseY;
 
+    // Set up pointer lock controls
+    Pointer.init();
+    Pointer.xBuff = Pointer.yBuff = 0;
+    Pointer.move = Controller.pointerLockMove;
+    document.addEventListener('click', Controller.pointerLockClick, false);
+
     // Initialize event listeners
     stage.addEventListener2(KeyboardEvent.KEY_DOWN, this.keyDown, this);
     stage.addEventListener2(KeyboardEvent.KEY_UP, this.keyUp, this);
@@ -31,6 +37,17 @@ function Controller() {
     stage.addEventListener2(MouseEvent.MOUSE_DOWN, this.mouseDown, this);
     stage.addEventListener2(MouseEvent.MOUSE_UP, this.mouseUp, this);
 }
+
+Controller.pointerLockClick = function() {
+    if (!Pointer.isLocked())
+	Pointer.lock();
+};
+
+Controller.pointerLockMove = function(e) {
+    //console.log(e.movementX, e.movementY);
+    Pointer.xBuff += e.movementX;
+    Pointer.yBuff += e.movementY;
+};
 
 Controller.prototype.ACTION_HASH = {
     "north": [87, 38], // W, up
@@ -51,6 +68,10 @@ Controller.prototype.update = function(dt) {
     this.deltaMouseY = stage.mouseY - this.previousMouseY;
     this.previousMouseX = stage.mouseX;
     this.previousMouseY = stage.mouseY;
+
+    this.deltaMouseX += Pointer.xBuff;
+    this.deltaMouseY += Pointer.yBuff;
+    Pointer.xBuff = Pointer.yBuff = 0;
 
     if (this.deltaMouseX || this.deltaMouseY) {
 	var newDirection = Math.atan2(this.deltaMouseX, -this.deltaMouseY)*180/Math.PI;
