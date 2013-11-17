@@ -170,7 +170,7 @@ LoveDaimond.prototype.update = function(dt) {
     var playerDirection = Math.atan2(world.player.x - this.x, world.player.y - this.y);
     this.xSpeed = Math.sin(playerDirection)*this.SPEED;
     this.ySpeed = Math.cos(playerDirection)*this.SPEED;
-    this.rotationZ = playerDirection*180/Math.PI;
+    this.rotationZ = playerDirection*360/Math.PI;
 
     // Run update as an enemy
     Enemy.prototype.update.call(this, dt);

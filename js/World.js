@@ -18,11 +18,12 @@ function World(width, height) {
 
     this.width = width;
     this.height = height;
+    this.reset();
     // Initialize position camera position variables
-    this.x = this.destinationX = this.worldX = -this.width/2;
-    this.y = this.destinationY = this.worldY = -this.height*2.5;
+    this.x = this.worldX = -this.width/2;
+    this.y = this.worldY = -this.height*2.5;
     // Initialize camera zoom variables
-    this.destinationZoom = this.worldZoom = 1;
+    this.worldZoom = 1;
 
     // Add background stars
     this.stars = [];
@@ -76,6 +77,7 @@ function World(width, height) {
 World.prototype = new Sprite();
 World.prototype.BLOCK_SIZE = 16;
 World.prototype.COLLISION_SIZE = 64;
+World.prototype.DEATH_TIME = 100;
 
 /**
  * Updates the world including all initialized entities. The scale and
@@ -83,37 +85,51 @@ World.prototype.COLLISION_SIZE = 64;
  * @tparam float dt The delta time multiplier for this frame.
  */
 World.prototype.update = function(dt) {
-    if (!this.player)
-	this.player = new Player(this.width/2, this.height/2);
+    if (this.active) {
+	// Add random SpinStars and LoveDaimonds
+	if (Math.random() < 0.02*dt) {
+	    if (Math.random() < 0.5)
+		new SpinStar(Math.random()*this.width, Math.random()*this.height);
+	    else
+		new LoveDaimond(Math.random()*this.width, Math.random()*this.height);
+	}
+	
+	// Update all entities
+	for (var i = 0; i < this.entities.length; i++)
+	    this.entities[i].update(dt);
 
-    // Add random SpinStars and LoveDaimonds
-    if (Math.random() < 0.04*dt) {
-	if (Math.random() < 0.5)
-	    new SpinStar(Math.random()*this.width, Math.random()*this.height);
-	else
-	    new LoveDaimond(Math.random()*this.width, Math.random()*this.height);
+	if (this.player) {
+	    // Destination world scale (camera zoom)
+	    this.destinationZoom = 1.5 - Math.max(
+		Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
+	    )/this.player.MAX_SPEED*0.2;
+
+	    // Destination world position (camera pan)
+	    this.destinationX = -(this.player.x + this.player.xSpeed*25);
+	    this.destinationY = -(this.player.y + this.player.ySpeed*25);
+	}
+    } else {
+	this.deathTimer -= dt;
+	if (this.deathTimer <= 0) {
+	    this.active = true;
+
+	    for (var i = this.entities.length - 1; i >= 0; i--)
+		this.entities[i].die();
+	    this.player = new Player(this.width/2, this.height/2);
+	}
     }
 
-    // Update all entities
-    for (var i = 0; i < this.entities.length; i++)
-	this.entities[i].update(dt);
-
     // World scale (camera zoom)
-    this.destinationZoom = 1.5 - Math.max(
-	Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
-    )/this.player.MAX_SPEED*0.2;
-
     this.worldZoom += asymptote(this.destinationZoom - this.worldZoom, 30, dt);
     this.scaleX = this.scaleY = this.scaleZ = this.worldZoom*
 	(stage.stageWidth/1024 + stage.stageHeight/768)/2;
 
     // World position (camera pan)
-    this.destinationX = -(this.player.x + this.player.xSpeed*25);
-    this.destinationY = -(this.player.y + this.player.ySpeed*25);
     this.worldX += asymptote(this.destinationX - this.worldX, 15, dt);
     this.worldY += asymptote(this.destinationY - this.worldY, 15, dt);
     this.x = this.worldX*this.scaleX;
     this.y = this.worldY*this.scaleY;
+	
 };
 
 /**
@@ -142,4 +158,28 @@ World.prototype.findCollidingEnemy = function(entity) {
     }
 
     return null;
+};
+
+/**
+ * Triggered upon player death, destroys all entities except for the enemy
+ * which collided with the player. This is to show the user how the player
+ * died.
+ * @tparam Enemy to not destroy.
+ */
+World.prototype.reset = function(enemy) {
+    this.active = false;
+    this.deathTimer = this.DEATH_TIME;
+
+    this.player = null;
+    if (enemy) {
+	for (var i = this.entities.length - 1; i >= 0; i--) {
+	    if (this.entities[i] !== enemy) {
+		this.entities[i].die();
+	    }
+	}
+    }
+
+    this.destinationX = -this.width/2;
+    this.destinationY = -this.height/2;
+    this.destinationZoom = 0.8;
 };

@@ -201,6 +201,13 @@ Player.prototype.update = function(dt) {
     // Run update as an entity
     Entity.prototype.update.call(this, dt);
 
+    // Check collision with enemies
+    var enemy = world.findCollidingEnemy(this);
+    if (enemy) {
+	this.die();
+	world.reset(enemy);
+    }
+
     // Fire bullets
     if (this.controller.actions.fire) {
 	while (this.bulletTimer <= 0) {
