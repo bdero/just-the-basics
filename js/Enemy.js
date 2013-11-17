@@ -135,7 +135,6 @@ SpinStar.prototype.update = function(dt) {
 function LoveDaimond(x, y) {
     Enemy.call(this, x, y, 20);
 
-    //this.updateVelocity();
     this.lifeTime = 0;
 
     // Add love daimond graphic
@@ -168,17 +167,11 @@ LoveDaimond.prototype.update = function(dt) {
     this.shape.scaleY = (Math.cos(this.lifeTime) + 1)/8 + 0.75;
 
     // Persue the player
-    this.updateVelocity();
+    var playerDirection = Math.atan2(world.player.x - this.x, world.player.y - this.y);
+    this.xSpeed = Math.sin(playerDirection)*this.SPEED;
+    this.ySpeed = Math.cos(playerDirection)*this.SPEED;
+    this.rotationZ = playerDirection*180/Math.PI;
 
     // Run update as an enemy
     Enemy.prototype.update.call(this, dt);
 };
-
-/**
- * Updates the velocity to move towards the player.
- */
-LoveDaimond.prototype.updateVelocity = function() {
-    var playerDirection = Math.atan2(world.player.x - this.x, world.player.y - this.y);
-    this.xSpeed = Math.sin(playerDirection)*this.SPEED;
-    this.ySpeed = Math.cos(playerDirection)*this.SPEED;
-}
