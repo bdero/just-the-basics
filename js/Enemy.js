@@ -86,7 +86,7 @@ function SpinStar(x, y) {
 
     // Add spin star graphic
     this.shape = new Sprite();
-    this.shape.graphics.lineStyle(3, 0x2288dd, 0x90);
+    this.shape.graphics.lineStyle(3, 0x2255cc, 0x90);
     this.shape.graphics.moveTo(0, this.radius);
     var deltaAngle = 2*Math.PI/8*3;
     for (var i = 1; i <= 8; i++) {
@@ -115,10 +115,70 @@ SpinStar.prototype.update = function(dt) {
     // Run update as an enemy
     Enemy.prototype.update.call(this, dt);
 
-    // Bounce off of walls
+    // Reflect off of walls
     if (this.x <= this.radius || this.x >= world.width - this.radius)
 	this.xSpeed *= -1;
     if (this.y <= this.radius || this.y >= world.height - this.radius)
 	this.ySpeed *= -1;
 };
 
+/**
+ * LoveDaimonds are daimond-shaped enemies that constantly persue the player.
+ *
+ * @see Enemy
+ * @see Entity
+ * @ctor
+ * Constructs a LoveDaimond enemy entity with the given initial position.
+ * @tparam float x The initial X-position in the world for the enemy.
+ * @tparam float y The initial Y-position in the world for the enemy.
+ */
+function LoveDaimond(x, y) {
+    Enemy.call(this, x, y, 20);
+
+    //this.updateVelocity();
+    this.lifeTime = 0;
+
+    // Add love daimond graphic
+    this.shape = new Sprite();
+    this.shape.graphics.lineStyle(4, 0x2288dd, 0x90);
+    this.shape.graphics.moveTo(0, this.radius);
+    this.shape.graphics.lineTo(this.radius, 0);
+    this.shape.graphics.lineTo(0, -this.radius);
+    this.shape.graphics.lineTo(-this.radius, 0);
+    this.shape.graphics.lineTo(0, this.radius);
+
+    this.addChild(this.shape);
+}
+
+LoveDaimond.prototype = new Enemy();
+LoveDaimond.prototype.SPEED = 3;
+
+/**
+ * Implements the artificial intelligence for LoveDaimond enemies, and updates
+ * the enemy's position on the enemy collision grid by calling the parent
+ * class <code>Enemy</code>'s update method.
+ * @see Enemy
+ * @tparam float dt The delta time multipler for this frame.
+ */
+LoveDaimond.prototype.update = function(dt) {
+    this.lifeTime += dt/10;
+
+    // Set graphical scale
+    this.shape.scaleX = (Math.sin(this.lifeTime) + 1)/8 + 0.75;
+    this.shape.scaleY = (Math.cos(this.lifeTime) + 1)/8 + 0.75;
+
+    // Persue the player
+    this.updateVelocity();
+
+    // Run update as an enemy
+    Enemy.prototype.update.call(this, dt);
+};
+
+/**
+ * Updates the velocity to move towards the player.
+ */
+LoveDaimond.prototype.updateVelocity = function() {
+    var playerDirection = Math.atan2(world.player.x - this.x, world.player.y - this.y);
+    this.xSpeed = Math.sin(playerDirection)*this.SPEED;
+    this.ySpeed = Math.cos(playerDirection)*this.SPEED;
+}

@@ -67,7 +67,7 @@ function World(width, height) {
     }
 
     // Add player
-    this.player = null;
+    //this.player = null;
     //this.player = new Player(width/2, height/2);
     //this.addChild(this.player);
     //this.entities.push(this.player);
@@ -86,9 +86,13 @@ World.prototype.update = function(dt) {
     if (!this.player)
 	this.player = new Player(this.width/2, this.height/2);
 
-    // Add random SpinStars
-    if (Math.random() < 0.02)
-	new SpinStar(Math.random()*this.width, Math.random()*this.height);
+    // Add random SpinStars and LoveDaimonds
+    if (Math.random() < 0.04*dt) {
+	if (Math.random() < 0.5)
+	    new SpinStar(Math.random()*this.width, Math.random()*this.height);
+	else
+	    new LoveDaimond(Math.random()*this.width, Math.random()*this.height);
+    }
 
     // Update all entities
     for (var i = 0; i < this.entities.length; i++)
