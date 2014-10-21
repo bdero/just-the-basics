@@ -26,7 +26,7 @@ function Entity(x, y, radius) {
     this.radius = radius;
 
     // Add entity to the world
-    if (x != undefined && y != undefined && radius != undefined) {
+    if (x !== undefined && y !== undefined && radius !== undefined) {
         world.entities.push(this);
         world.addChild(this);
     }
@@ -163,6 +163,7 @@ Player.prototype.update = function(dt) {
     if (this.controller.actions.west) xMult -= 1;
     if (this.controller.actions.east) xMult += 1;
 
+    var speed, newSpeed, ratio;
     if (xMult || yMult) {
         if (xMult && yMult) {
             xMult *= this.DIAG_COMPONENT;
@@ -173,17 +174,17 @@ Player.prototype.update = function(dt) {
         this.ySpeed += yMult*this.ACCEL_SPEED*dt;
 
         // Enforce speed limit
-        var newSpeed = distance(this.xSpeed, this.ySpeed);
+        newSpeed = distance(this.xSpeed, this.ySpeed);
         if (newSpeed > this.MAX_SPEED) {
-            var ratio = this.MAX_SPEED/newSpeed;
+            ratio = this.MAX_SPEED/newSpeed;
             this.xSpeed *= ratio;
             this.ySpeed *= ratio;
         }
     } else if (this.xSpeed || this.ySpeed) {
         // Friction
-        var speed = distance(this.xSpeed, this.ySpeed);
-        var newSpeed = Math.max(0, speed - this.DECEL_SPEED*dt);
-        var ratio = newSpeed/speed;
+        speed = distance(this.xSpeed, this.ySpeed);
+        newSpeed = Math.max(0, speed - this.DECEL_SPEED*dt);
+        ratio = newSpeed/speed;
         this.xSpeed *= ratio;
         this.ySpeed *= ratio;
     }
@@ -215,9 +216,9 @@ Player.prototype.update = function(dt) {
             var aimX = Math.sin(aimDir);
             var aimY = -Math.cos(aimDir);
             var dist = this.radius + 5;
-            var speed = 8;
+            var bulletSpeed = 8;
             new Bullet(this.x + aimX*dist, this.y + aimY*dist,
-                       speed*aimX + this.xSpeed, speed*aimY + this.ySpeed,
+                       bulletSpeed*aimX + this.xSpeed, bulletSpeed*aimY + this.ySpeed,
                        this.controller.actions.aimDirection);
 
             this.bulletTimer += this.BULLET_CLOCK;

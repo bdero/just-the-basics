@@ -2,7 +2,7 @@
 
 var Pointer = Pointer || {};
 
-Pointer.canLock = function() { return Pointer._canLock };
+Pointer.canLock = function() { return Pointer._canLock; };
 
 Pointer.lock = function() {
     if (!Pointer.canLock) return;
@@ -58,7 +58,7 @@ Pointer.init = function(controls) {
     document.addEventListener('pointerlockerror', Pointer.errorCallback, false);
     document.addEventListener('mozpointerlockerror', Pointer.errorCallback, false);
     document.addEventListener('webkitpointerlockerror', Pointer.errorCallback, false);
-}
+};
 
 // Pointer callbacks
 
@@ -78,7 +78,7 @@ Pointer.moveCallback = function(event) {
     event.movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
     Pointer.move(event);
-}
+};
 
 Pointer.errorCallback = function() {
     console.log("Pointer lock failed.");

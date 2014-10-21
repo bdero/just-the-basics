@@ -21,7 +21,7 @@
 function Enemy(x, y, radius) {
     Entity.call(this, x, y, radius);
 
-    if (x != undefined && y != undefined && radius != undefined) {
+    if (x !== undefined && y !== undefined && radius !== undefined) {
         var gridPosition = this.getGridPosition();
         this.gridX = gridPosition[0];
         this.gridY = gridPosition[1];

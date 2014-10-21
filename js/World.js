@@ -15,6 +15,7 @@
  */
 function World(width, height) {
     Sprite.call(this);
+    var i, j;
 
     this.width = width;
     this.height = height;
@@ -27,7 +28,7 @@ function World(width, height) {
 
     // Add background stars
     this.stars = [];
-    for (var i = 0; i < 300; i++) {
+    for (i = 0; i < 300; i++) {
         var s = new Sprite();
         s.graphics.beginFill(0xffffff, Math.random()*0.25 + 0.75);
         s.graphics.drawCircle(0, 0, Math.random()*2 + 3);
@@ -41,11 +42,11 @@ function World(width, height) {
 
     // Add background grid
     this.graphics.lineStyle(2, 0xffffff, 0.25);
-    for (var i = this.BLOCK_SIZE; i < width; i += this.BLOCK_SIZE) {
+    for (i = this.BLOCK_SIZE; i < width; i += this.BLOCK_SIZE) {
         this.graphics.moveTo(i, 0);
         this.graphics.lineTo(i, height);
     }
-    for (var i = this.BLOCK_SIZE; i < height; i += this.BLOCK_SIZE) {
+    for (i = this.BLOCK_SIZE; i < height; i += this.BLOCK_SIZE) {
         this.graphics.moveTo(0, i);
         this.graphics.lineTo(width, i);
     }
@@ -61,9 +62,9 @@ function World(width, height) {
     // Set up entity reference and collision grid
     this.entities = [];
     this.collisionGrid = [];
-    for (var i = 0; i*this.COLLISION_SIZE < width; i++) {
+    for (i = 0; i*this.COLLISION_SIZE < width; i++) {
         this.collisionGrid[i] = [];
-        for (var j = 0; j*this.COLLISION_SIZE < height; j++)
+        for (j = 0; j*this.COLLISION_SIZE < height; j++)
             this.collisionGrid[i][j] = [];
     }
 
@@ -85,6 +86,8 @@ World.prototype.DEATH_TIME = 100;
  * @tparam float dt The delta time multiplier for this frame.
  */
 World.prototype.update = function(dt) {
+    var i;
+
     if (this.active) {
         // Add random SpinStars and LoveDaimonds
         if (Math.random() < 0.02*dt) {
@@ -95,7 +98,7 @@ World.prototype.update = function(dt) {
         }
         
         // Update all entities
-        for (var i = 0; i < this.entities.length; i++)
+        for (i = 0; i < this.entities.length; i++)
             this.entities[i].update(dt);
 
         if (this.player) {
@@ -113,7 +116,7 @@ World.prototype.update = function(dt) {
         if (this.deathTimer <= 0) {
             this.active = true;
 
-            for (var i = this.entities.length - 1; i >= 0; i--)
+            for (i = this.entities.length - 1; i >= 0; i--)
                 this.entities[i].die();
             this.player = new Player(this.width/2, this.height/2);
         }
@@ -139,17 +142,19 @@ World.prototype.update = function(dt) {
  * @treturn Enemy Returns the first found enemy that's colliding with the given entity (or null).
  */
 World.prototype.findCollidingEnemy = function(entity) {
+    var i, j, k;
+
     var gridWidth = this.collisionGrid.length;
     var gridHeight = this.collisionGrid[0].length;
     var gridPos = entity.getGridPosition();
 
-    for (var i = Math.max(0, gridPos[0] - 1);
+    for (i = Math.max(0, gridPos[0] - 1);
          i < Math.min(gridWidth, gridPos[0] + 1);
          i++) {
-        for (var j = Math.max(0, gridPos[1] - 1);
+        for (j = Math.max(0, gridPos[1] - 1);
              j < Math.min(gridHeight, gridPos[1] + 1);
              j++) {
-            for (var k = 0; k < this.collisionGrid[i][j].length; k++) {
+            for (k = 0; k < this.collisionGrid[i][j].length; k++) {
                 var enemy = this.collisionGrid[i][j][k];
                 if (entity.isColliding(enemy))
                     return enemy;
@@ -167,12 +172,14 @@ World.prototype.findCollidingEnemy = function(entity) {
  * @tparam Enemy to not destroy.
  */
 World.prototype.reset = function(enemy) {
+    var i;
+
     this.active = false;
     this.deathTimer = this.DEATH_TIME;
 
     this.player = null;
     if (enemy) {
-        for (var i = this.entities.length - 1; i >= 0; i--) {
+        for (i = this.entities.length - 1; i >= 0; i--) {
             if (this.entities[i] !== enemy) {
                 this.entities[i].die();
             }

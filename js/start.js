@@ -54,7 +54,7 @@ function update() {
  * @tparam float b The Y-coordinate of the given point.
  * @treturn float Returns the distance from the origin (0, 0) to the given point (a, b).
  */
-function distance(a, b) { return Math.sqrt(a*a + b*b) }
+function distance(a, b) { return Math.sqrt(a*a + b*b); }
 
 
 /**
