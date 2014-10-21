@@ -15,8 +15,8 @@ function Controller() {
     // Define actions
     this.actions = {};
     for (var key in this.ACTION_HASH)
-	if (this.ACTION_HASH.hasOwnProperty(key))
-	    this.actions[key] = false;
+        if (this.ACTION_HASH.hasOwnProperty(key))
+            this.actions[key] = false;
     this.actions.aimDirection = 0;
     this.actions.fire = false;
 
@@ -55,7 +55,7 @@ Controller.prototype.ACTION_HASH = {
  */
 Controller.pointerLockClick = function() {
     if (!Pointer.isLocked())
-	Pointer.lock();
+        Pointer.lock();
 };
 
 /**
@@ -65,7 +65,6 @@ Controller.pointerLockClick = function() {
  * happens).
  */
 Controller.pointerLockMove = function(e) {
-    //console.log(e.movementX, e.movementY);
     Pointer.xBuff += e.movementX;
     Pointer.yBuff += e.movementY;
 };
@@ -86,9 +85,9 @@ Controller.prototype.update = function(dt) {
     Pointer.xBuff = Pointer.yBuff = 0;
 
     if (this.deltaMouseX || this.deltaMouseY) {
-	var newDirection = Math.atan2(this.deltaMouseX, -this.deltaMouseY)*180/Math.PI;
-	this.actions.aimDirection += asymptote(
-	    modulate(newDirection - this.actions.aimDirection), 5, dt);
+        var newDirection = Math.atan2(this.deltaMouseX, -this.deltaMouseY)*180/Math.PI;
+        this.actions.aimDirection += asymptote(
+            modulate(newDirection - this.actions.aimDirection), 5, dt);
     }
 };
 
@@ -97,7 +96,6 @@ Controller.prototype.update = function(dt) {
  * @tparam KeyboardEvent e Keyboard event generated when triggered by the event listener.
  */
 Controller.prototype.keyDown = function(e) {
-    //console.log(e.keyCode + " pressed");
     this.keyboardAction(e, true);
 };
 
@@ -115,7 +113,6 @@ Controller.prototype.keyUp = function(e) {
  */
 Controller.prototype.mouseDown = function(e) {
     this.actions.fire = true;
-    //console.log("firing");
 };
 
 /**
@@ -124,7 +121,6 @@ Controller.prototype.mouseDown = function(e) {
  */
 Controller.prototype.mouseUp = function(e) {
     this.actions.fire = false;
-    //console.log("not firing");
 };
 
 /**
@@ -136,11 +132,10 @@ Controller.prototype.mouseUp = function(e) {
  */
 Controller.prototype.keyboardAction = function(e, value) {
     for (var key in this.ACTION_HASH)
-	if (this.ACTION_HASH.hasOwnProperty(key))
-	    for (var i in this.ACTION_HASH[key])
-		if (this.ACTION_HASH[key][i] == e.keyCode) {
-		    this.actions[key] = value;
-		    //console.log(key + " set to " + value);
-		    break;
-		}
+        if (this.ACTION_HASH.hasOwnProperty(key))
+            for (var i in this.ACTION_HASH[key])
+                if (this.ACTION_HASH[key][i] == e.keyCode) {
+                    this.actions[key] = value;
+                    break;
+                }
 };

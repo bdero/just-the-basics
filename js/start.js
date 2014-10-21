@@ -86,7 +86,7 @@ function asymptote(dist, divisor, dt) {
 // Array extensions
 Array.prototype.removeObject = function(obj) {
     for (var i = 0; i < this.length; i++)
-	if (this[i] === obj) return this.splice(i, 1);
+        if (this[i] === obj) return this.splice(i, 1);
 
     return null;
 };

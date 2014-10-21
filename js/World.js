@@ -28,26 +28,26 @@ function World(width, height) {
     // Add background stars
     this.stars = [];
     for (var i = 0; i < 300; i++) {
-	var s = new Sprite();
-	s.graphics.beginFill(0xffffff, Math.random()*0.25 + 0.75);
-	s.graphics.drawCircle(0, 0, Math.random()*2 + 3);
-	s.graphics.endFill();
-	s.x = Math.random()*width*2 - width/2;
-	s.y = Math.random()*height*2 - height/2;
-	s.z = Math.random()*1000;
-	this.stars.push(s);
-	this.addChild(s);
+        var s = new Sprite();
+        s.graphics.beginFill(0xffffff, Math.random()*0.25 + 0.75);
+        s.graphics.drawCircle(0, 0, Math.random()*2 + 3);
+        s.graphics.endFill();
+        s.x = Math.random()*width*2 - width/2;
+        s.y = Math.random()*height*2 - height/2;
+        s.z = Math.random()*1000;
+        this.stars.push(s);
+        this.addChild(s);
     }
 
     // Add background grid
     this.graphics.lineStyle(2, 0xffffff, 0.25);
     for (var i = this.BLOCK_SIZE; i < width; i += this.BLOCK_SIZE) {
-	this.graphics.moveTo(i, 0);
-	this.graphics.lineTo(i, height);
+        this.graphics.moveTo(i, 0);
+        this.graphics.lineTo(i, height);
     }
     for (var i = this.BLOCK_SIZE; i < height; i += this.BLOCK_SIZE) {
-	this.graphics.moveTo(0, i);
-	this.graphics.lineTo(width, i);
+        this.graphics.moveTo(0, i);
+        this.graphics.lineTo(width, i);
     }
 
     // Add border
@@ -62,9 +62,9 @@ function World(width, height) {
     this.entities = [];
     this.collisionGrid = [];
     for (var i = 0; i*this.COLLISION_SIZE < width; i++) {
-	this.collisionGrid[i] = [];
-	for (var j = 0; j*this.COLLISION_SIZE < height; j++)
-	    this.collisionGrid[i][j] = [];
+        this.collisionGrid[i] = [];
+        for (var j = 0; j*this.COLLISION_SIZE < height; j++)
+            this.collisionGrid[i][j] = [];
     }
 
     // Add player
@@ -86,50 +86,50 @@ World.prototype.DEATH_TIME = 100;
  */
 World.prototype.update = function(dt) {
     if (this.active) {
-	// Add random SpinStars and LoveDaimonds
-	if (Math.random() < 0.02*dt) {
-	    if (Math.random() < 0.5)
-		new SpinStar(Math.random()*this.width, Math.random()*this.height);
-	    else
-		new LoveDaimond(Math.random()*this.width, Math.random()*this.height);
-	}
-	
-	// Update all entities
-	for (var i = 0; i < this.entities.length; i++)
-	    this.entities[i].update(dt);
+        // Add random SpinStars and LoveDaimonds
+        if (Math.random() < 0.02*dt) {
+            if (Math.random() < 0.5)
+                new SpinStar(Math.random()*this.width, Math.random()*this.height);
+            else
+                new LoveDaimond(Math.random()*this.width, Math.random()*this.height);
+        }
+        
+        // Update all entities
+        for (var i = 0; i < this.entities.length; i++)
+            this.entities[i].update(dt);
 
-	if (this.player) {
-	    // Destination world scale (camera zoom)
-	    this.destinationZoom = 1.5 - Math.max(
-		Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
-	    )/this.player.MAX_SPEED*0.2;
+        if (this.player) {
+            // Destination world scale (camera zoom)
+            this.destinationZoom = 1.5 - Math.max(
+                Math.abs(this.player.xSpeed), Math.abs(this.player.ySpeed)
+            )/this.player.MAX_SPEED*0.2;
 
-	    // Destination world position (camera pan)
-	    this.destinationX = -(this.player.x + this.player.xSpeed*25);
-	    this.destinationY = -(this.player.y + this.player.ySpeed*25);
-	}
+            // Destination world position (camera pan)
+            this.destinationX = -(this.player.x + this.player.xSpeed*25);
+            this.destinationY = -(this.player.y + this.player.ySpeed*25);
+        }
     } else {
-	this.deathTimer -= dt;
-	if (this.deathTimer <= 0) {
-	    this.active = true;
+        this.deathTimer -= dt;
+        if (this.deathTimer <= 0) {
+            this.active = true;
 
-	    for (var i = this.entities.length - 1; i >= 0; i--)
-		this.entities[i].die();
-	    this.player = new Player(this.width/2, this.height/2);
-	}
+            for (var i = this.entities.length - 1; i >= 0; i--)
+                this.entities[i].die();
+            this.player = new Player(this.width/2, this.height/2);
+        }
     }
 
     // World scale (camera zoom)
     this.worldZoom += asymptote(this.destinationZoom - this.worldZoom, 30, dt);
     this.scaleX = this.scaleY = this.scaleZ = this.worldZoom*
-	(stage.stageWidth/1024 + stage.stageHeight/768)/2;
+        (stage.stageWidth/1024 + stage.stageHeight/768)/2;
 
     // World position (camera pan)
     this.worldX += asymptote(this.destinationX - this.worldX, 15, dt);
     this.worldY += asymptote(this.destinationY - this.worldY, 15, dt);
     this.x = this.worldX*this.scaleX;
     this.y = this.worldY*this.scaleY;
-	
+    
 };
 
 /**
@@ -144,17 +144,17 @@ World.prototype.findCollidingEnemy = function(entity) {
     var gridPos = entity.getGridPosition();
 
     for (var i = Math.max(0, gridPos[0] - 1);
-	 i < Math.min(gridWidth, gridPos[0] + 1);
-	 i++) {
-	for (var j = Math.max(0, gridPos[1] - 1);
-	     j < Math.min(gridHeight, gridPos[1] + 1);
-	     j++) {
-	    for (var k = 0; k < this.collisionGrid[i][j].length; k++) {
-		var enemy = this.collisionGrid[i][j][k];
-		if (entity.isColliding(enemy))
-		    return enemy;
-	    }
-	}
+         i < Math.min(gridWidth, gridPos[0] + 1);
+         i++) {
+        for (var j = Math.max(0, gridPos[1] - 1);
+             j < Math.min(gridHeight, gridPos[1] + 1);
+             j++) {
+            for (var k = 0; k < this.collisionGrid[i][j].length; k++) {
+                var enemy = this.collisionGrid[i][j][k];
+                if (entity.isColliding(enemy))
+                    return enemy;
+            }
+        }
     }
 
     return null;
@@ -172,11 +172,11 @@ World.prototype.reset = function(enemy) {
 
     this.player = null;
     if (enemy) {
-	for (var i = this.entities.length - 1; i >= 0; i--) {
-	    if (this.entities[i] !== enemy) {
-		this.entities[i].die();
-	    }
-	}
+        for (var i = this.entities.length - 1; i >= 0; i--) {
+            if (this.entities[i] !== enemy) {
+                this.entities[i].die();
+            }
+        }
     }
 
     this.destinationX = -this.width/2;

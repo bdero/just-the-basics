@@ -22,10 +22,10 @@ function Enemy(x, y, radius) {
     Entity.call(this, x, y, radius);
 
     if (x != undefined && y != undefined && radius != undefined) {
-	var gridPosition = this.getGridPosition();
-	this.gridX = gridPosition[0];
-	this.gridY = gridPosition[1];
-	world.collisionGrid[this.gridX][this.gridY].push(this);
+        var gridPosition = this.getGridPosition();
+        this.gridX = gridPosition[0];
+        this.gridY = gridPosition[1];
+        world.collisionGrid[this.gridX][this.gridY].push(this);
     }
 }
 
@@ -42,10 +42,10 @@ Enemy.prototype.update = function(dt) {
     // Position self on the enemy collision grid
     var gridPosition = this.getGridPosition();
     if (gridPosition[0] != this.gridX || gridPosition[1] != this.gridY) {
-	world.collisionGrid[this.gridX][this.gridY].removeObject(this);
-	this.gridX = gridPosition[0];
-	this.gridY = gridPosition[1];
-	world.collisionGrid[this.gridX][this.gridY].push(this);
+        world.collisionGrid[this.gridX][this.gridY].removeObject(this);
+        this.gridX = gridPosition[0];
+        this.gridY = gridPosition[1];
+        world.collisionGrid[this.gridX][this.gridY].push(this);
     }
 
     // Run update as an entity
@@ -90,10 +90,10 @@ function SpinStar(x, y) {
     this.shape.graphics.moveTo(0, this.radius);
     var deltaAngle = 2*Math.PI/8*3;
     for (var i = 1; i <= 8; i++) {
-	this.shape.graphics.lineTo(
-	    Math.sin(deltaAngle*i)*this.radius,
-	    Math.cos(deltaAngle*i)*this.radius
-	);
+        this.shape.graphics.lineTo(
+            Math.sin(deltaAngle*i)*this.radius,
+            Math.cos(deltaAngle*i)*this.radius
+        );
     }
 
     this.addChild(this.shape);
@@ -117,9 +117,9 @@ SpinStar.prototype.update = function(dt) {
 
     // Reflect off of walls
     if (this.x <= this.radius || this.x >= world.width - this.radius)
-	this.xSpeed *= -1;
+        this.xSpeed *= -1;
     if (this.y <= this.radius || this.y >= world.height - this.radius)
-	this.ySpeed *= -1;
+        this.ySpeed *= -1;
 };
 
 /**

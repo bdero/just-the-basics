@@ -27,8 +27,8 @@ function Entity(x, y, radius) {
 
     // Add entity to the world
     if (x != undefined && y != undefined && radius != undefined) {
-	world.entities.push(this);
-	world.addChild(this);
+        world.entities.push(this);
+        world.addChild(this);
     }
 }
 
@@ -71,8 +71,8 @@ Entity.prototype.isColliding = function(other) {
  */
 Entity.prototype.getGridPosition = function() {
     return [
-	Math.floor(this.x/world.COLLISION_SIZE),
-	Math.floor(this.y/world.COLLISION_SIZE)
+        Math.floor(this.x/world.COLLISION_SIZE),
+        Math.floor(this.y/world.COLLISION_SIZE)
     ];
 };
 
@@ -82,8 +82,8 @@ Entity.prototype.getGridPosition = function() {
  */
 Entity.prototype.isTouchingWall = function() {
     return this.x <= this.radius || this.y <= this.radius ||
-	this.x >= world.width - this.radius ||
-	this.y >= world.height - this.radius;
+        this.x >= world.width - this.radius ||
+        this.y >= world.height - this.radius;
 };
 
 /**
@@ -164,33 +164,33 @@ Player.prototype.update = function(dt) {
     if (this.controller.actions.east) xMult += 1;
 
     if (xMult || yMult) {
-	if (xMult && yMult) {
-	    xMult *= this.DIAG_COMPONENT;
-	    yMult *= this.DIAG_COMPONENT;
-	}
+        if (xMult && yMult) {
+            xMult *= this.DIAG_COMPONENT;
+            yMult *= this.DIAG_COMPONENT;
+        }
 
-	this.xSpeed += xMult*this.ACCEL_SPEED*dt;
-	this.ySpeed += yMult*this.ACCEL_SPEED*dt;
+        this.xSpeed += xMult*this.ACCEL_SPEED*dt;
+        this.ySpeed += yMult*this.ACCEL_SPEED*dt;
 
-	// Enforce speed limit
-	var newSpeed = distance(this.xSpeed, this.ySpeed);
-	if (newSpeed > this.MAX_SPEED) {
-	    var ratio = this.MAX_SPEED/newSpeed;
-	    this.xSpeed *= ratio;
-	    this.ySpeed *= ratio;
-	}
+        // Enforce speed limit
+        var newSpeed = distance(this.xSpeed, this.ySpeed);
+        if (newSpeed > this.MAX_SPEED) {
+            var ratio = this.MAX_SPEED/newSpeed;
+            this.xSpeed *= ratio;
+            this.ySpeed *= ratio;
+        }
     } else if (this.xSpeed || this.ySpeed) {
-	// Friction
-	var speed = distance(this.xSpeed, this.ySpeed);
-	var newSpeed = Math.max(0, speed - this.DECEL_SPEED*dt);
-	var ratio = newSpeed/speed;
-	this.xSpeed *= ratio;
-	this.ySpeed *= ratio;
+        // Friction
+        var speed = distance(this.xSpeed, this.ySpeed);
+        var newSpeed = Math.max(0, speed - this.DECEL_SPEED*dt);
+        var ratio = newSpeed/speed;
+        this.xSpeed *= ratio;
+        this.ySpeed *= ratio;
     }
 
     // Adjust graphic direction based on controller
     if (xMult || yMult)
-	this.destinationDirection = Math.atan2(xMult, -yMult);
+        this.destinationDirection = Math.atan2(xMult, -yMult);
 
     var deltaDestination = this.destinationDirection*180/Math.PI - this.shape.rotationZ;
     this.shape.rotationZ += modulate(deltaDestination)/10*dt;
@@ -204,27 +204,27 @@ Player.prototype.update = function(dt) {
     // Check collision with enemies
     var enemy = world.findCollidingEnemy(this);
     if (enemy) {
-	this.die();
-	world.reset(enemy);
+        this.die();
+        world.reset(enemy);
     }
 
     // Fire bullets
     if (this.controller.actions.fire) {
-	while (this.bulletTimer <= 0) {
-	    var aimDir = this.controller.actions.aimDirection/180*Math.PI;
-	    var aimX = Math.sin(aimDir);
-	    var aimY = -Math.cos(aimDir);
-	    var dist = this.radius + 5;
-	    var speed = 8;
-	    new Bullet(this.x + aimX*dist, this.y + aimY*dist,
-		       speed*aimX + this.xSpeed, speed*aimY + this.ySpeed,
-		       this.controller.actions.aimDirection);
+        while (this.bulletTimer <= 0) {
+            var aimDir = this.controller.actions.aimDirection/180*Math.PI;
+            var aimX = Math.sin(aimDir);
+            var aimY = -Math.cos(aimDir);
+            var dist = this.radius + 5;
+            var speed = 8;
+            new Bullet(this.x + aimX*dist, this.y + aimY*dist,
+                       speed*aimX + this.xSpeed, speed*aimY + this.ySpeed,
+                       this.controller.actions.aimDirection);
 
-	    this.bulletTimer += this.BULLET_CLOCK;
-	}
-	this.bulletTimer -= 1*dt;
+            this.bulletTimer += this.BULLET_CLOCK;
+        }
+        this.bulletTimer -= 1*dt;
     } else {
-	this.bulletTimer = 0;
+        this.bulletTimer = 0;
     }
 };
 
@@ -277,11 +277,11 @@ Bullet.prototype.update = function(dt) {
     // Collision detection
     var enemy = world.findCollidingEnemy(this);
     if (enemy) {
-	this.die();
-	enemy.die();
+        this.die();
+        enemy.die();
 
-	// Increase score
+        // Increase score
     }
     if (this.isTouchingWall())
-	this.die();
+        this.die();
 };
